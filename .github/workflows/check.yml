@@ -51,23 +51,26 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
     - name: Set up Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: '16'
 
-    - uses: actions/checkout@main
-      name: Checkout
-
     - name: Install dependencies
-      run: |
-        npm install
+      run: npm install
 
     - name: Run checks
-      run: |
-        npm run lint
+      run: npm run lint
+
   build:
     runs-on: ubuntu-latest
+    # ВАЖНО: деплоим только при пуше в main или ручном запуске,
+    # чтобы пулл-реквесты не ломали деплой
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    needs: check # Сборка начнется только если линтер (check) прошел успешно
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -87,6 +90,7 @@ jobs:
 
       - name: Setup pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
