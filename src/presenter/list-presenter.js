@@ -13,8 +13,6 @@ export default class ListPresenter {
 
   init () {
     render (this.listEventComponent, this.container);
-    console.log('listEventComponent: ', this.listEventComponent);
-    console.log('this.listEventComponent.getElement(): ', this.listEventComponent.getElement());
     render (this.formEditComponent, this.listEventComponent.getElement());
 
     for (let i = 0; i < 3; i += 1) {
