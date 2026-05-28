@@ -1,22 +1,24 @@
-import ListTripEvents from '../view/list-trip-events-view';
-import PointTripEvent from '../view/point-trip-event-view';
-import FormEditEvent from '../view/form-edit-event-view.js';
+import ListTripEvents from '../view/list-trip-view.js';
+import PointTripEvent from '../view/point-trip-view.js';
+import FormEditEvent from '../view/form-edit-view.js';
 import { render } from '../render.js';
 
 export default class ListPresenter {
-  listEventTripComponent = new ListTripEvents();
-  formEditEvent = new FormEditEvent();
+  listEventComponent = new ListTripEvents();
+  formEditComponent = new FormEditEvent();
 
   constructor (container) {
-    this.container = container;
+    this.container = container; // container - tripEventsContainer приходит из точки входа
   }
 
   init () {
-    render (this.listEventTripComponent, this.container);
-    render (this.formEditEvent, this.listEventTripComponent.getElement()); // форма сейчас в списке но не в li - как то это не правильно
+    render (this.listEventComponent, this.container);
+    console.log('listEventComponent: ', this.listEventComponent);
+    console.log('this.listEventComponent.getElement(): ', this.listEventComponent.getElement());
+    render (this.formEditComponent, this.listEventComponent.getElement());
 
     for (let i = 0; i < 3; i += 1) {
-      render(new PointTripEvent(), this.listEventTripComponent.getElement());
+      render(new PointTripEvent(), this.listEventComponent.getElement());
     }
   }
 }
