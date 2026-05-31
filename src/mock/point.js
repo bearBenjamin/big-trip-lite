@@ -12,7 +12,7 @@ const getRandomOffer = (offers, type) => {
   return currentOffers;
 };
 
-const generatePoint = (id) => {
+const generatePoint = (id = Math.random()) => {
   const currentPointType = getRandomArrayElement(POINT__TYPE);
 
   return {
@@ -27,4 +27,4 @@ const generatePoint = (id) => {
   };
 };
 
-console.log(generatePoint(Math.random()));
+export { generatePoint };
