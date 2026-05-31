@@ -3,6 +3,7 @@ import SortView from './view/sort-view.js';
 import TripInfoView from './view/trip-info-view.js';
 import FilterView from './view/filter-view.js';
 import { render, RenderPosition } from './render.js';
+import './mock/point.js';
 
 const header = document.querySelector('.page-header');
 const tripInfoContainer = header.querySelector('.trip-main');
