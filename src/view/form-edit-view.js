@@ -1,13 +1,98 @@
 import { createElement } from '../render.js';
+import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils.js';
+import { OFFERS__BY__TYPE } from '../const.js';
+
+const createOffersTemplate = (type, offers) => {
+  const currentOffers = getTypeOffers(OFFERS__BY__TYPE, type);
+
+  if (!currentOffers || !currentOffers.offers || currentOffers.offers.length === 0) {
+    return '';
+  }
+
+  const listOffers = currentOffers.offers.map((offer) => {
+    const isChecked = offers.includes(offer.id) ? 'checked' : '';
+    const item = `<div class="event__offer-selector">
+                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}"  data-offer-id="${offer.id}" ${isChecked}>
+                        <label class="event__offer-label" for="event-offer-${offer.id}">
+                          <span class="event__offer-title">${offer.title}</span>
+                          &plus;&euro;&nbsp;
+                          <span class="event__offer-price">${offer.price}</span>
+                        </label>
+                      </div>`;
+    return item;
+  }).join('');
+
+  const templateSectionOffers = `
+                  <section class="event__section  event__section--offers">
+                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                    <div class="event__available-offers">${listOffers}</div>
+                  </section>`;
+
+  return templateSectionOffers;
+};
+
+const createPhotosTemplate = (photos) => {
+  if (!photos || photos.length === 0) {
+    return '';
+  }
+
+  const listPhotos = photos.map((photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`).join('');
+
+  const templatePhotos = `<div class="event__photos-container">
+                      <div class="event__photos-tape">
+                        ${listPhotos}
+                      </div>
+                    </div>`;
+
+  return templatePhotos;
+};
+
+const createDescriptionTemplate = (description, pictures) => {
+
+  const hasDescription = Boolean(description && description.length > 0);
+  const hasPictures = Boolean(pictures && pictures.length > 0);
+
+  if (!hasDescription && !hasPictures) {
+    return '';
+  }
+
+  const templateDescription = hasDescription ? `<p class="event__destination-description">${description}</p>` : '';
+
+  const templatePhotos = createPhotosTemplate (pictures);
+
+  const templateSectionDescription = templatePhotos ? `<section class="event__section  event__section--destination">
+                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                    ${templateDescription}
+                    ${templatePhotos}
+                  </section>` : '';
+
+  return templateSectionDescription;
+};
 
 const createTemplate =
-  () => `<li class="trip-events__item">
+  ({ point }) => {
+    const { type, dateFrom, dateTo, price, offers, destination } = point;
+
+    const { name, description, pictures } = destination;
+
+    const capitalizedType = getCapitalaizedType(type);
+
+    const nameCity = name.length !== 0 ? name : '';
+
+    const dateStart = formatFormDateTime(dateFrom);
+    const dateEnd = formatFormDateTime(dateTo);
+
+    const templateSectionOffers = createOffersTemplate(type, offers);
+
+    const templateSectionDescription = createDescriptionTemplate(description, pictures);
+
+    return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -65,9 +150,9 @@ const createTemplate =
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      Flight
+                      ${capitalizedType}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Chamonix" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       <option value="Amsterdam"></option>
                       <option value="Geneva"></option>
@@ -77,10 +162,10 @@ const createTemplate =
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 12:25">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 13:35">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -88,7 +173,7 @@ const createTemplate =
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -98,68 +183,20 @@ const createTemplate =
                   </button>
                 </header>
                 <section class="event__details">
-                  <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-                    <div class="event__available-offers">
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
-                        <label class="event__offer-label" for="event-offer-luggage-1">
-                          <span class="event__offer-title">Add luggage</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">50</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked>
-                        <label class="event__offer-label" for="event-offer-comfort-1">
-                          <span class="event__offer-title">Switch to comfort</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">80</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal">
-                        <label class="event__offer-label" for="event-offer-meal-1">
-                          <span class="event__offer-title">Add meal</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">15</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-                        <label class="event__offer-label" for="event-offer-seats-1">
-                          <span class="event__offer-title">Choose seats</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">5</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train">
-                        <label class="event__offer-label" for="event-offer-train-1">
-                          <span class="event__offer-title">Travel by train</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">40</span>
-                        </label>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">Chamonix-Mont-Blanc (usually shortened to Chamonix) is a resort area near the junction of France, Switzerland and Italy. At the base of Mont Blanc, the highest summit in the Alps, it's renowned for its skiing.</p>
-                  </section>
+                  ${templateSectionOffers}
+                  ${templateSectionDescription}
                 </section>
               </form>
             </li>`;
+  };
 
 export default class FormEditEvent {
+  constructor (point) {
+    this.point = point;
+  }
+
   getTemplate() {
-    return createTemplate();
+    return createTemplate(this.point);
   }
 
   getElement() {

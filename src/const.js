@@ -10,62 +10,22 @@ const POINT__TYPE = [
   'restaurant',
 ];
 
-const DESTINATION = ['Amsterdam', 'Chamonix', 'Geneva'];
-
-const DESCRIPTION = [
+const DESTINATIONS_DATA = [
   {
     name: 'Amsterdam',
-    description:
-      'Amsterdam is the charming capital of the Netherlands, famous for its historic canals and vibrant cycling culture. It perfectly blends rich history with a modern lifestyle, offering world-class museums and scenic views.',
-    pictures: [
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'The Van Gogh Museum',
-      },
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'The Canals of Amsterdam',
-      },
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'Vondelpark',
-      },
-    ],
+    description: 'Amsterdam is the charming capital of the Netherlands, famous for its historic canals and vibrant cycling culture...',
+    picturesData: ['The Van Gogh Museum', 'The Canals of Amsterdam', 'Vondelpark']
   },
   {
     name: 'Geneva',
-    description:
-      'Geneva is a stunning Swiss city nestled on the shores of Europe\'s largest Alpine lake, world-renowned as a global hub for diplomacy and luxury watchmaking. It beautifully combines historic charm, found in its cobblestone Old Town, with breathtaking views of the surrounding snow-capped mountains.',
-    pictures: [
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'Jet d\'Eau',
-      },
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'The Old Town (Vieille Ville)',
-      },
-    ],
+    description: 'Geneva is a stunning Swiss city nestled on the shores of Europe\'s largest Alpine lake...',
+    picturesData: ['Jet d\'Eau', 'The Old Town (Vieille Ville)']
   },
   {
     name: 'Chamonix',
-    description:
-      'Chamonix is a world-famous Alpine resort town nestled at the base of Mont Blanc, the highest peak in Europe. It is a legendary destination for winter sports and outdoor adventures, offering breathtaking mountain panoramas and stunning glacial views all year round.',
-    pictures: [
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'Mont Blanc',
-      },
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'Aiguille du Midi',
-      },
-      {
-        src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-        description: 'Mer de Glace',
-      },
-    ],
-  },
+    description: 'Chamonix is a world-famous Alpine resort town nestled at the base of Mont Blanc...',
+    picturesData: ['Mont Blanc', 'Aiguille du Midi', 'Mer de Glace']
+  }
 ];
 
 const OFFERS__BY__TYPE = [
@@ -296,4 +256,4 @@ const OFFERS__BY__TYPE = [
   },
 ];
 
-export { POINT__TYPE, DESCRIPTION, DESTINATION, OFFERS__BY__TYPE };
+export { POINT__TYPE, DESTINATIONS_DATA, OFFERS__BY__TYPE };

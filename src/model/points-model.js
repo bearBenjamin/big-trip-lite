@@ -1,6 +1,6 @@
 import { generatePoint } from '../mock/point';
 
-const POINT__COUNT = 3;
+const POINT__COUNT = 4;
 
 export default class PointsModel {
   points = Array.from({ length: POINT__COUNT}, generatePoint);

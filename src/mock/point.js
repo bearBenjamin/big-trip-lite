@@ -1,4 +1,4 @@
-import { POINT__TYPE, DESCRIPTION, DESTINATION, OFFERS__BY__TYPE } from '../const';
+import { POINT__TYPE, OFFERS__BY__TYPE, DESTINATIONS_DATA } from '../const';
 import { getRandomArrayElement, getRandomInteger, getTypeOffers } from '../utils';
 import dayjs from 'dayjs';
 
@@ -21,10 +21,19 @@ const generatePointDates = () => {
   };
 };
 
-const getRandomDestination = (events) => {
-  const destination = getRandomArrayElement(events);
-  const currentDestination = DESCRIPTION.find((item) => item.name === destination);
-  return currentDestination;
+const getRandomDestination = (destinations) => {
+  const randomCity = getRandomArrayElement(destinations);
+
+  const pictures = randomCity.picturesData.map((description) => ({
+    src: `https://loremflickr.com/248/152?random=${Math.random()}`,
+    description: description
+  }));
+
+  return {
+    name: randomCity.name,
+    description: randomCity.description,
+    pictures: pictures
+  };
 };
 
 const getRandomOffer = (offers, type) => {
@@ -42,7 +51,7 @@ const generatePoint = (id = Math.random()) => {
   return {
     id: id,
     type: currentPointType,
-    destination: getRandomDestination(DESTINATION),
+    destination: getRandomDestination(DESTINATIONS_DATA),
     dateFrom: dates.dateFrom,
     dateTo: dates.dateTo,
     price: 20,

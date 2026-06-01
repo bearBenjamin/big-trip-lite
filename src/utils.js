@@ -10,6 +10,8 @@ const MACHINE_DATE_FORMAT = 'YYYY-MM-DD';
 const HUMAN_TIME_FORMAT = 'HH:mm';
 const MACHINE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 
+const FORM__DATE__TIME__FORMAT = 'DD/MM/YY HH:mm';
+
 function humanazePointDueDate (dueDate) {
   return dueDate ? dayjs(dueDate).format(DATE__FORMAT).toUpperCase() : '';
 }
@@ -24,6 +26,10 @@ function humanizePointTime(dueDate) {
 
 function formatMachineTime(dueDate) {
   return dueDate ? dayjs(dueDate).format(MACHINE_TIME_FORMAT) : '';
+}
+
+function formatFormDateTime(dueDate) {
+  return dueDate ? dayjs(dueDate).format(FORM__DATE__TIME__FORMAT) : '';
 }
 
 function getEventDuration(dateFrom, dateTo) {
@@ -56,5 +62,9 @@ function getTypeOffers(offers, type) {
   return offers.find((offer) => offer.type === type);
 }
 
-export {getRandomArrayElement, getRandomInteger, humanazePointDueDate, formatMachineDate, formatMachineTime, humanizePointTime, getEventDuration, getTypeOffers};
+function getCapitalaizedType(type) {
+  return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+export {getRandomArrayElement, getRandomInteger, humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType};
 

@@ -6,6 +6,7 @@ import {
   humanizePointTime,
   getEventDuration,
   getTypeOffers,
+  getCapitalaizedType,
 } from '../utils.js';
 import { OFFERS__BY__TYPE } from '../const.js';
 
@@ -19,24 +20,25 @@ const createOffersTemplate = (type, offers) => {
 
   if (chosenOffers.length === 0) {
     listOffers = '';
-  } else {
-    listOffers = chosenOffers.map((offer) => `
+    return listOffers;
+  }
+
+  listOffers = chosenOffers.map((offer) => `
                   <li class="event__offer">
                     <span class="event__offer-title">${offer.title}</span>
                     &plus;&euro;&nbsp;
                     <span class="event__offer-price">${offer.price}</span>
                   </li>`);
-  }
 
-  const offersTemplate = listOffers.length === 0 ? '' : `<h4 class="visually-hidden">Offers:</h4>
+  return `<h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">${listOffers.join('')}</ul>`;
-
-  return offersTemplate;
 };
 
 const createTemplate = (point) => {
   const { type, destination, dateFrom, dateTo, price, offers, isFavorite } = point;
   const { name } = destination;
+
+  const capitalizedType = getCapitalaizedType(type);
 
   // блок работы с датой и временем
   const machineDate = formatMachineDate(dateFrom);
@@ -49,8 +51,6 @@ const createTemplate = (point) => {
   const humanEndTime = humanizePointTime(dateTo); // "11:00"
 
   const durationDate = getEventDuration(dateFrom, dateTo);
-
-  const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
 
   // блок работы с offers
   const offersTemplate = createOffersTemplate(type, offers);

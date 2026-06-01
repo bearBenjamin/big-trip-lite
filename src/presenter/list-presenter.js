@@ -5,7 +5,7 @@ import { render } from '../render.js';
 
 export default class ListPresenter {
   listEventComponent = new ListTripEvents();
-  formEditComponent = new FormEditEvent();
+  //formEditComponent = new FormEditEvent();
 
   constructor ({ container, pointsModel }) {
     this.listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
@@ -20,9 +20,9 @@ export default class ListPresenter {
     render (this.listEventComponent, this.listContainer);
 
     //отрисовываю форму редактирования точки списка - первым элементом списка
-    render (this.formEditComponent, this.listEventComponent.getElement());
+    render (new FormEditEvent ({ point: this.listPoints[0] }), this.listEventComponent.getElement());
 
-    for (let i = 0; i < this.listPoints.length; i += 1) {
+    for (let i = 1; i < this.listPoints.length; i += 1) {
       // отрисовываю точки списка по одной из массива точек, который приходит из модели
       render(new PointTripEvent({ point: this.listPoints[i] }), this.listEventComponent.getElement());
     }
