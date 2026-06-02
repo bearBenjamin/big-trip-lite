@@ -1,9 +1,8 @@
 import { createElement } from '../render.js';
 import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils.js';
-import { OFFERS__BY__TYPE } from '../const.js';
 
-const createOffersTemplate = (type, offers) => {
-  const currentOffers = getTypeOffers(OFFERS__BY__TYPE, type);
+const createOffersTemplate = (type, offers, offersData) => {
+  const currentOffers = getTypeOffers(offersData, type);
 
   if (!currentOffers || !currentOffers.offers || currentOffers.offers.length === 0) {
     return '';
@@ -69,8 +68,33 @@ const createDescriptionTemplate = (description, pictures) => {
   return templateSectionDescription;
 };
 
+// не понятно надо ли и как поменять адрес иконки, если она приходит в псевдоэлемент в CSS - скорей всего это остатется как есть и не формируется динамически
+/* const createOffersTypeListTemplate = (offersData) => {
+  const listType = offersData.map((offer) => `<div class="event__type-item">
+                          <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}">
+                          <label class="event__type-label  event__type-label--taxi" for="event-type-${offer.type}-1">${offer.type}</label>
+                        </div>`).join('');
+
+  const templateListType = `<div class="event__type-list">
+                      <fieldset class="event__type-group">
+                        <legend class="visually-hidden">Event type</legend>
+                        ${listType}
+                        </fieldset>
+                    </div>`;
+
+  return templateListType;
+}; */
+
+const createDestinationListTemplate = (destinationsData) => {
+  const listCity = destinationsData.map((destination) => `<option value="${destination.name}"></option>`).join('');
+  const templateListCity = `<datalist id="destination-list-1">${listCity}</datalist>`;
+  return templateListCity;
+};
+
+
 const createTemplate =
-  ({ point }) => {
+  (point, offersData, destinationsData) => {
+
     const { type, dateFrom, dateTo, price, offers, destination } = point;
 
     const { name, description, pictures } = destination;
@@ -82,7 +106,11 @@ const createTemplate =
     const dateStart = formatFormDateTime(dateFrom);
     const dateEnd = formatFormDateTime(dateTo);
 
-    const templateSectionOffers = createOffersTemplate(type, offers);
+    const templateSectionOffers = createOffersTemplate(type, offers, offersData);
+
+    // const templateListType = createOffersTypeListTemplate(offersData);
+
+    const templateListCity = createDestinationListTemplate(destinationsData);
 
     const templateSectionDescription = createDescriptionTemplate(description, pictures);
 
@@ -153,11 +181,7 @@ const createTemplate =
                       ${capitalizedType}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1">
-                    <datalist id="destination-list-1">
-                      <option value="Amsterdam"></option>
-                      <option value="Geneva"></option>
-                      <option value="Chamonix"></option>
-                    </datalist>
+                    ${templateListCity}
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
@@ -191,12 +215,14 @@ const createTemplate =
   };
 
 export default class FormEditEvent {
-  constructor (point) {
+  constructor ({ point, offers, destinations }) {
     this.point = point;
+    this.offers = offers;
+    this.destinations = destinations;
   }
 
   getTemplate() {
-    return createTemplate(this.point);
+    return createTemplate(this.point, this.offers, this.destinations);
   }
 
   getElement() {

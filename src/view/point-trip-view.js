@@ -8,10 +8,9 @@ import {
   getTypeOffers,
   getCapitalaizedType,
 } from '../utils.js';
-import { OFFERS__BY__TYPE } from '../const.js';
 
-const createOffersTemplate = (type, offers) => {
-  const currentOffers = getTypeOffers(OFFERS__BY__TYPE, type);
+const createOffersTemplate = (type, offers, offersData) => {
+  const currentOffers = getTypeOffers(offersData, type);
   const chosenOffers = currentOffers.offers.filter((offer) =>
     offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
   );
@@ -34,8 +33,8 @@ const createOffersTemplate = (type, offers) => {
                 <ul class="event__selected-offers">${listOffers.join('')}</ul>`;
 };
 
-const createTemplate = (point) => {
-  const { type, destination, dateFrom, dateTo, price, offers, isFavorite } = point;
+const createTemplate = (pointData, offersData) => {
+  const { type, dateFrom, dateTo, price, offers, destination, isFavorite } = pointData;
   const { name } = destination;
 
   const capitalizedType = getCapitalaizedType(type);
@@ -53,7 +52,7 @@ const createTemplate = (point) => {
   const durationDate = getEventDuration(dateFrom, dateTo);
 
   // блок работы с offers
-  const offersTemplate = createOffersTemplate(type, offers);
+  const offersTemplate = createOffersTemplate(type, offers, offersData);
 
   // блок работы с избранным
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
@@ -91,12 +90,13 @@ const createTemplate = (point) => {
 };
 
 export default class PointTripEvent {
-  constructor({ point }) {
+  constructor({ point, offers }) {
     this.point = point;
+    this.offers = offers;
   }
 
   getTemplate() {
-    return createTemplate(this.point);
+    return createTemplate(this.point, this.offers, this.destinations);
   }
 
   getElement() {
