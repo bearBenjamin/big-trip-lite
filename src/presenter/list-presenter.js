@@ -1,7 +1,7 @@
 import ListTripEvents from '../view/list-trip-view.js';
 import PointTripEvent from '../view/point-trip-view.js';
 import FormEditEvent from '../view/form-edit-view.js';
-import { render } from '../render.js';
+import { render } from '../framework/render.js';
 
 export default class ListPresenter {
   listEventComponent = new ListTripEvents();
@@ -21,11 +21,11 @@ export default class ListPresenter {
     render (this.listEventComponent, this.listContainer);
 
     //отрисовываю форму редактирования точки списка - первым элементом списка
-    render (new FormEditEvent ({ point: this.listPoints[0], offers: this.listOffers, destinations: this.listDestinations }), this.listEventComponent.getElement());
+    render (new FormEditEvent ({ point: this.listPoints[0], offers: this.listOffers, destinations: this.listDestinations }), this.listEventComponent.element);
 
     for (let i = 1; i < this.listPoints.length; i += 1) {
       // отрисовываю точки списка по одной из массива точек, который приходит из модели
-      render(new PointTripEvent({ point: this.listPoints[i], offers: this.listOffers }), this.listEventComponent.getElement());
+      render(new PointTripEvent({ point: this.listPoints[i], offers: this.listOffers }), this.listEventComponent.element);
     }
   }
 }

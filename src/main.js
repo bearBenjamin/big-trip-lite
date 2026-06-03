@@ -2,7 +2,7 @@ import ListPresenter from './presenter/list-presenter.js';
 import SortView from './view/sort-view.js';
 import TripInfoView from './view/trip-info-view.js';
 import FilterView from './view/filter-view.js';
-import { render, RenderPosition } from './render.js';
+import { render, RenderPosition } from './framework/render.js';
 import { offersData, destinationsData } from './mock/point.js';
 import PointsModel from './model/points-model.js';
 

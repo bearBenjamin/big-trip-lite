@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {
   humanazePointDueDate,
   formatMachineDate,
@@ -89,24 +89,14 @@ const createTemplate = (pointData, offersData) => {
             </li>`;
 };
 
-export default class PointTripEvent {
+export default class PointTripEvent extends AbstractView {
   constructor({ point, offers }) {
+    super();
     this.point = point;
     this.offers = offers;
   }
 
-  getTemplate() {
+  get template() {
     return createTemplate(this.point, this.offers, this.destinations);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
