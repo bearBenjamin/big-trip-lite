@@ -29,11 +29,25 @@ export default class ListPresenter {
     render (this.#listEventComponent, this.#listContainer);
 
     //отрисовываю форму редактирования точки списка - первым элементом списка
-    render (new FormEditEvent ({ point: this.#listPoints[0], offers: this.#listOffers, destinations: this.#listDestinations }), this.#listEventComponent.element);
+    // render (new FormEditEvent ({ point: this.#listPoints[0], offers: this.#listOffers, destinations: this.#listDestinations }), this.#listEventComponent.element);
+    this.#renderFormEdit();
 
     for (let i = 1; i < this.#listPoints.length; i += 1) {
       // отрисовываю точки списка по одной из массива точек, который приходит из модели
-      render(new PointTripEvent({ point: this.#listPoints[i], offers: this.#listOffers }), this.#listEventComponent.element);
+      // render(new PointTripEvent({ point: this.#listPoints[i], offers: this.#listOffers }), this.#listEventComponent.element);
+      this.#renderPoint({ point: this.#listPoints[i], offers: this.#listOffers });
     }
+  }
+
+  #renderPoint(point) {
+    const pointComponent = new PointTripEvent(point);
+
+    render(pointComponent, this.#listEventComponent.element);
+  }
+
+  #renderFormEdit() {
+    const formEditComponent = new FormEditEvent({ point: this.#listPoints[0], offers: this.#listOffers, destinations: this.#listDestinations});
+
+    render(formEditComponent, this.#listEventComponent.element);
   }
 }
