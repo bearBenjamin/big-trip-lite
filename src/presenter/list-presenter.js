@@ -24,16 +24,16 @@ export default class ListPresenter {
     this.#listOffers = [...this.#pointsModel.offers];
     this.#listDestinations = [...this.#pointsModel.destinations];
 
+    this.#renderList();
+  }
+
+  #renderList() {
     render(this.#sortComponent, this.#listContainer);
     //отрисоваваю контейнер списка - <ul></ul>
     render(this.#listEventComponent, this.#listContainer);
 
-    //отрисовываю форму редактирования точки списка - первым элементом списка
-    // render (new FormEditEvent ({ point: this.#listPoints[0], offers: this.#listOffers, destinations: this.#listDestinations }), this.#listEventComponent.element);
-
+    //отрисовываю точки списка точек путешествия
     for (let i = 1; i < this.#listPoints.length; i += 1) {
-      // отрисовываю точки списка по одной из массива точек, который приходит из модели
-      // render(new PointTripEvent({ point: this.#listPoints[i], offers: this.#listOffers }), this.#listEventComponent.element);
       this.#renderPoint(
         this.#listPoints[i],
         this.#listOffers,
@@ -50,6 +50,7 @@ export default class ListPresenter {
       }
     };
 
+    //здесь храню точку списка путешествия
     const pointComponent = new PointTripEvent({
       point,
       offers,
@@ -60,6 +61,7 @@ export default class ListPresenter {
       },
     });
 
+    //здесь храню форму редактирования точки списка
     const formEditComponent = new FormEditEvent({
       point,
       offers,
