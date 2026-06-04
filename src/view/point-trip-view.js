@@ -7,7 +7,7 @@ import {
   getEventDuration,
   getTypeOffers,
   getCapitalaizedType,
-} from '../utils.js';
+} from '../utils/point.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);

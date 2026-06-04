@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils.js';
+import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);

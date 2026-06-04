@@ -50,14 +50,6 @@ function getEventDuration(dateFrom, dateTo) {
   return `${String(minutes).padStart(2, '0')}M`;
 }
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function getRandomInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 function getTypeOffers(offers, type) {
   return offers.find((offer) => offer.type === type);
 }
@@ -66,5 +58,4 @@ function getCapitalaizedType(type) {
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
-export {getRandomArrayElement, getRandomInteger, humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType};
-
+export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType};
