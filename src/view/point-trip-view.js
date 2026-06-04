@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {
   humanazePointDueDate,
   formatMachineDate,
@@ -7,12 +7,12 @@ import {
   getEventDuration,
   getTypeOffers,
   getCapitalaizedType,
-} from '../utils.js';
+} from '../utils/point.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);
-  const chosenOffers = currentOffers.offers.filter((offer) =>
-    offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
+  const chosenOffers = currentOffers.offers.filter(
+    (offer) => offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
   );
 
   let listOffers;
@@ -22,19 +22,22 @@ const createOffersTemplate = (type, offers, offersData) => {
     return listOffers;
   }
 
-  listOffers = chosenOffers.map((offer) => `
+  listOffers = chosenOffers.map(
+    (offer) => `
                   <li class="event__offer">
                     <span class="event__offer-title">${offer.title}</span>
                     &plus;&euro;&nbsp;
                     <span class="event__offer-price">${offer.price}</span>
-                  </li>`);
+                  </li>`,
+  );
 
   return `<h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">${listOffers.join('')}</ul>`;
 };
 
 const createTemplate = (pointData, offersData) => {
-  const { type, dateFrom, dateTo, price, offers, destination, isFavorite } = pointData;
+  const { type, dateFrom, dateTo, price, offers, destination, isFavorite } =
+    pointData;
   const { name } = destination;
 
   const capitalizedType = getCapitalaizedType(type);
@@ -89,24 +92,27 @@ const createTemplate = (pointData, offersData) => {
             </li>`;
 };
 
-export default class PointTripEvent {
-  constructor({ point, offers }) {
-    this.point = point;
-    this.offers = offers;
+export default class PointTripEvent extends AbstractView {
+  #point = null;
+  #offers = [];
+  #handleFormEditBtnClick = null;
+
+  constructor({ point, offers, onFormEditBtnClick }) {
+    super();
+    this.#point = point;
+    this.#offers = offers;
+    this.#handleFormEditBtnClick = onFormEditBtnClick;
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createTemplate(this.point, this.offers, this.destinations);
+  get template() {
+    return createTemplate(this.#point, this.#offers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormEditBtnClick();
+  };
 }
