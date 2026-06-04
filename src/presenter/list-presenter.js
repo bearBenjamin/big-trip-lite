@@ -3,6 +3,7 @@ import PointTripEvent from '../view/point-trip-view.js';
 import FormEditEvent from '../view/form-edit-view.js';
 import { render, replace } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
+import ListEmpty from '../view/no-point-view.js';
 
 export default class ListPresenter {
   #listContainer = null;
@@ -28,6 +29,12 @@ export default class ListPresenter {
   }
 
   #renderList() {
+    if (this.#listPoints.length === 0) {
+      render(new ListEmpty(), this.#listContainer);
+      return;
+    }
+
+    //отрисовываю сортировку она у нас до списка
     render(this.#sortComponent, this.#listContainer);
     //отрисоваваю контейнер списка - <ul></ul>
     render(this.#listEventComponent, this.#listContainer);
