@@ -11,14 +11,6 @@ const header = document.querySelector('.page-header');
 const tripInfoContainer = header.querySelector('.trip-main');
 const filterContainer = header.querySelector('.trip-controls__filters');
 
-// cоздаю компоненты шапки - информацию о путешествии и блок фильтровки
-const tripInfoComponent = new TripInfoView();
-const filterComponent = new FilterView();
-
-// отрисовываю компоненты в header (информацию о путешествии и блок фильтровки)
-render (tripInfoComponent, tripInfoContainer, RenderPosition.AFTERBEGIN);
-render (filterComponent, filterContainer);
-
 // нахожу контейнер для основного содержимого в main
 const main = document.querySelector('.page-main');
 const tripEventsContainer = main.querySelector('.trip-events');
@@ -26,13 +18,20 @@ const tripEventsContainer = main.querySelector('.trip-events');
 // получаю данные по точкам путешествия из модели точек, передав внутрь модели данные offers и destinations из мок.данных
 const pointsModel = new PointsModel(offersData, destinationsData);
 const points = pointsModel.points; // Получаем массив точек
-const filtersData = generateFilter(points);
+const filtersData = generateFilter(points); // Получаем данные по фильтрам
+
+// cоздаю компоненты шапки - информацию о путешествии и блок фильтровки
+const tripInfoComponent = new TripInfoView();
+const filterComponent = new FilterView(filtersData); // отдаю данные фильтров в представление фильтров
+
+// отрисовываю компоненты в header (информацию о путешествии и блок фильтровки)
+render (tripInfoComponent, tripInfoContainer, RenderPosition.AFTERBEGIN);
+render (filterComponent, filterContainer);
 
 // передаю в презентер списка - контейнер основного содержимого и данные о точках путешествия полученные из модели точек
 const ListComponent = new ListPresenter({
   container: tripEventsContainer,
   pointsModel,
-  filtersData
 });
 
 // вызываю метод инициации отвечающего за создания списка с точками путешествия

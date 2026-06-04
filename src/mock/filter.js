@@ -5,6 +5,7 @@ function generateFilter(points) {
     ([filterType, filterPoints]) => ({
       type: filterType,
       data: filterPoints(points),
+      count: filterPoints(points).length,
     }),
   );
 }
