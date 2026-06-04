@@ -13,10 +13,12 @@ export default class ListPresenter {
   #listPoints = [];
   #listOffers = [];
   #listDestinations = [];
+  #filtersData = {};
 
-  constructor({ container, pointsModel }) {
+  constructor({ container, pointsModel, filtersData }) {
     this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
     this.#pointsModel = pointsModel; // массив точек путешествия;
+    this.#filtersData = filtersData; // объект с готовыми отфильтрованными массивами по времени;
   }
 
   init() {
@@ -40,7 +42,7 @@ export default class ListPresenter {
     render(this.#listEventComponent, this.#listContainer);
 
     //отрисовываю точки списка точек путешествия
-    for (let i = 1; i < this.#listPoints.length; i += 1) {
+    for (let i = 0; i < this.#listPoints.length; i += 1) {
       this.#renderPoint(
         this.#listPoints[i],
         this.#listOffers,
