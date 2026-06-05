@@ -17,4 +17,11 @@ const FilterType = {
   PAST: 'past',
 };
 
-export { POINT__TYPE, FilterType };
+const MessageNoEvent = {
+  EVERITHING: 'Click New Event to create your first point',
+  PAST: 'There are no past events',
+  PRESENT: 'There are no present events now',
+  FUTURE: 'There are no future events now',
+};
+
+export { POINT__TYPE, FilterType, MessageNoEvent };
