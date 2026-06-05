@@ -1,7 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { MessageNoEvent } from '../const.js';
 
 const createTemplate = () => `<p class="trip-events__msg">
-                                Click New Event to create your first point
+                                ${MessageNoEvent.EVERITHING}
                               </p>`;
 
 export default class ListEmpty extends AbstractView {
