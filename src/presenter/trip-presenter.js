@@ -1,12 +1,11 @@
 import TripInfoView from '../view/trip-info-view.js';
 import FilterView from '../view/filter-view.js';
 import ListTripEvents from '../view/list-trip-view.js';
-import PointTripEvent from '../view/point-trip-view.js';
-import FormEditEvent from '../view/form-edit-view.js';
-import { render, replace, RenderPosition } from '../framework/render.js';
+import { render, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import { generateFilter } from '../mock/filter.js';
+import PointPresenter from './point-presenter.js';
 
 export default class TripPresenter {
   #headerContainer = null;
@@ -22,6 +21,7 @@ export default class TripPresenter {
   #listPoints = [];
   #listOffers = [];
   #listDestinations = [];
+  #listPointPresenters = new Map();
 
   constructor({ headerContainer, mainContainer, pointsModel }) {
     this.#headerContainer = headerContainer;
@@ -36,7 +36,9 @@ export default class TripPresenter {
     this.#listDestinations = [...this.#pointsModel.destinations];
 
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
-    this.#filterContainer = this.#headerContainer.querySelector('.trip-controls__filters'); // получаю контейнер для фильтров из контейнера шапки
+    this.#filterContainer = this.#headerContainer.querySelector(
+      '.trip-controls__filters',
+    ); // получаю контейнер для фильтров из контейнера шапки
 
     this.#listContainer = this.#mainContainer.querySelector('.trip-events'); // получаю контейнер для списка точек путешествия из контейнера main
 
@@ -70,7 +72,6 @@ export default class TripPresenter {
 
   // метод отвечающий за отрисовку списка точек в main
   #renderList() {
-
     if (this.#listPoints.length === 0) {
       render(new ListEmpty(), this.#listContainer);
       return;
@@ -90,43 +91,22 @@ export default class TripPresenter {
   }
 
   #renderPoint(point, offers, destinations) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToPoint();
-        // document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    //здесь храню точку списка путешествия
-    const pointComponent = new PointTripEvent({
-      point,
+    const pointPresenter = new PointPresenter({
+      listEventComponent: this.#listEventComponent.element,
       offers,
       destinations,
-      onFormEditBtnClick: () => {
-        replacePointToForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      },
     });
 
-    //здесь храню форму редактирования точки списка
-    const formEditComponent = new FormEditEvent({
-      point,
-      offers,
-      destinations,
-      onFormSubmit: () => {},
-      onFormBtnCloseClick: () => replaceFormToPoint(),
+    pointPresenter.init(point);
+    this.#listPointPresenters.set(point.id, pointPresenter);
+  }
+
+  #clearListPoint() {
+    this.#listPointPresenters.forEach((presenter) => {
+      console.log('presenter: ', presenter);
+      presenter.destroy();
     });
 
-    function replacePointToForm() {
-      replace(formEditComponent, pointComponent);
-    }
-
-    function replaceFormToPoint() {
-      replace(pointComponent, formEditComponent);
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }
-
-    render(pointComponent, this.#listEventComponent.element);
+    this.#listPointPresenters.clear();
   }
 }

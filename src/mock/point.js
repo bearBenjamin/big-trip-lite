@@ -2,6 +2,7 @@ import { POINT__TYPE } from '../const';
 import { getTypeOffers } from '../utils/point.js';
 import { getRandomArrayElement, getRandomInteger } from '../utils/common.js';
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 
 const destinationsData = [
   {
@@ -291,12 +292,12 @@ const getRandomOffer = (offers, type) => {
   return id; // в точке в ключ offers уходят только id доп.предложений если они есть либо пустой массив
 };
 
-const generatePoint = (id = Math.random()) => {
+const generatePoint = () => {
   const currentPointType = getRandomArrayElement(POINT__TYPE);
   const dates = generatePointDates();
 
   return {
-    id: id, // здесь надо еще реализовать динамическое формирование id, т.к. у каждой точки он должен быть индивидуальным
+    id: nanoid(),
     type: currentPointType,
     destination: getRandomDestination(destinationsData),
     dateFrom: dates.dateFrom,
