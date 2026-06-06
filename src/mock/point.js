@@ -304,7 +304,7 @@ const generatePoint = () => {
     dateTo: dates.dateTo,
     price: 20,
     offers: getRandomOffer(offersData, currentPointType),
-    isFavorite: Math.random() > 0.5,
+    isFavorite: false,
   };
 };
 

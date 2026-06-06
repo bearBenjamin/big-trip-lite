@@ -96,6 +96,7 @@ export default class TripPresenter {
       listEventComponent: this.#listEventComponent.element,
       offers,
       destinations,
+      onDataChange: this.#handlePointChange,
     });
 
     pointPresenter.init(point);

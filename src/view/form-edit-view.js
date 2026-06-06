@@ -187,7 +187,7 @@ export default class FormEditEvent extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmitClick();
+    this.#handleFormSubmitClick(this.#point);
   };
 
   #formBtnCloseHandler = () => {

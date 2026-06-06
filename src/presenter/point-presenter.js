@@ -9,11 +9,13 @@ export default class PointPresenter {
   #destinations = [];
   #pointComponent = null;
   #formEditComponent = null;
+  #handleDataChange = null;
 
-  constructor({ listEventComponent, offers, destinations }) {
+  constructor({ listEventComponent, offers, destinations, onDataChange }) {
     this.#listEventContainer = listEventComponent;
     this.#offers = offers;
     this.#destinations = destinations;
+    this.#handleDataChange = onDataChange;
   }
 
   init(point) {
@@ -28,13 +30,14 @@ export default class PointPresenter {
       onFormEditBtnClick: () => {
         this.#replacePointToForm();
       },
+      onFavoriteBtnClick: () => this.#handleFavoriteClick(),
     });
 
     this.#formEditComponent = new FormEditEvent({
       point: this.#point,
       offers: this.#offers,
       destinations: this.#destinations,
-      onFormSubmit: () => {},
+      onFormSubmit: () => this.#handleFormSubmit,
       onFormBtnCloseClick: () => this.#replaceFormToPoint(),
     });
 
@@ -80,4 +83,13 @@ export default class PointPresenter {
     replace(this.#formEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
   }
+
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+  };
+
+  #handleFormSubmit = (point) => {
+    this.#handleDataChange(point);
+    this.#replaceFormToPoint();
+  };
 }
