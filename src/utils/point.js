@@ -58,4 +58,4 @@ function getCapitalaizedType(type) {
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
-export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType};
+export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType };

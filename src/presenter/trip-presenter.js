@@ -6,6 +6,7 @@ import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
+import { updateItem } from '../utils/common.js';
 
 export default class TripPresenter {
   #headerContainer = null;
@@ -109,4 +110,9 @@ export default class TripPresenter {
 
     this.#listPointPresenters.clear();
   }
+
+  #handlePointChange = (updatePoint) => {
+    this.#listPoints = updateItem(this.#listPoints, updatePoint);
+    this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
+  };
 }
