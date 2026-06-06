@@ -93,7 +93,6 @@ const createDestinationListTemplate = (destinationsData) => {
 
 const createTemplate =
   (point, offersData, destinationsData) => {
-
     const { type, dateFrom, dateTo, price, offers, destination } = point;
 
     const { name, description, pictures } = destination;
@@ -188,7 +187,7 @@ export default class FormEditEvent extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmitClick();
+    this.#handleFormSubmitClick(this.#point);
   };
 
   #formBtnCloseHandler = () => {

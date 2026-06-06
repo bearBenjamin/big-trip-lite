@@ -58,4 +58,18 @@ function getCapitalaizedType(type) {
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
-export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType};
+function sortTime(pointA, pointB) {
+  const durationA = dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom));
+  const durationB = dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom));
+  return durationB - durationA;
+}
+
+function sortPrice(pointA, pointB) {
+  return pointB.price - pointA.price;
+}
+
+function sortDay(pointA, pointB) {
+  return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+}
+
+export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType, sortTime, sortPrice, sortDay };

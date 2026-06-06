@@ -24,4 +24,10 @@ const MessageNoEvent = {
   FUTURE: 'There are no future events now',
 };
 
-export { POINT__TYPE, FilterType, MessageNoEvent };
+const SortType = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price'
+};
+
+export { POINT__TYPE, FilterType, MessageNoEvent, SortType };
