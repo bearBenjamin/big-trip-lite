@@ -7,6 +7,8 @@ import ListEmpty from '../view/no-point-view.js';
 import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
 import { updateItem } from '../utils/common.js';
+import { sortTime, sortPrice } from '../utils/point.js';
+import { SortType } from '../const.js';
 
 export default class TripPresenter {
   #headerContainer = null;
@@ -17,12 +19,15 @@ export default class TripPresenter {
   #pointsModel = {};
   #tripInfoComponent = new TripInfoView();
   #filterComponent = null;
-  #sortComponent = new SortView();
+  // #sortComponent = new SortView();
+  #sortComponent = null;
   #listEventComponent = new ListTripEvents();
   #listPoints = [];
   #listOffers = [];
   #listDestinations = [];
   #listPointPresenters = new Map();
+  #currentSortType = SortType.DAY;
+  #sourcedListPoints = [];
 
   constructor({ headerContainer, mainContainer, pointsModel }) {
     this.#headerContainer = headerContainer;
@@ -35,6 +40,8 @@ export default class TripPresenter {
     this.#listPoints = [...this.#pointsModel.points];
     this.#listOffers = [...this.#pointsModel.offers];
     this.#listDestinations = [...this.#pointsModel.destinations];
+
+    this.#sourcedListPoints = [...this.#pointsModel.points];
 
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
     this.#filterContainer = this.#headerContainer.querySelector(
@@ -68,8 +75,38 @@ export default class TripPresenter {
 
   // метод отвечающий за отрисовку сортировки точек в main
   #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortChange,
+    });
     render(this.#sortComponent, this.#listContainer);
   }
+
+  #sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.TIME:
+        this.#listPoints.sort(sortTime);
+        console.log('TIME: ', this.#listPoints);
+        break;
+      case SortType.PRICE:
+        this.#listPoints.sort(sortPrice);
+        console.log('PRICE: ', this.#listPoints);
+        break;
+      default:
+        this.#listPoints = [...this.#sourcedListPoints];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    // - Очищаем список;
+    // - Рендерим список заново;
+  };
 
   // метод отвечающий за отрисовку списка точек в main
   #renderList() {
@@ -97,7 +134,7 @@ export default class TripPresenter {
       offers,
       destinations,
       onDataChange: this.#handlePointChange,
-      onModeChange: this.#handleModeChange
+      onModeChange: this.#handleModeChange,
     });
 
     pointPresenter.init(point);
@@ -114,6 +151,7 @@ export default class TripPresenter {
 
   #handlePointChange = (updatePoint) => {
     this.#listPoints = updateItem(this.#listPoints, updatePoint);
+    this.#sourcedListPoints = updateItem(this.#sourcedListPoints, updatePoint);
     this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
   };
 

@@ -302,7 +302,7 @@ const generatePoint = () => {
     destination: getRandomDestination(destinationsData),
     dateFrom: dates.dateFrom,
     dateTo: dates.dateTo,
-    price: 20,
+    price: Math.floor(Math.random() * 1000),
     offers: getRandomOffer(offersData, currentPointType),
     isFavorite: false,
   };

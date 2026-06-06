@@ -66,11 +66,13 @@ export default class PointPresenter {
     remove(prevFormEditComponent);
   }
 
+  // доступный снаружи метод презентера для уничтожения компонента точки и компонента формы
   destroy() {
     remove(this.#pointComponent);
     remove(this.#formEditComponent);
   }
 
+  // доступный снаружи метод презентера точки для сброса представления с формы на точку
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToPoint();
