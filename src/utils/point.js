@@ -68,4 +68,8 @@ function sortPrice(pointA, pointB) {
   return pointB.price - pointA.price;
 }
 
-export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType, sortTime, sortPrice };
+function sortDay(pointA, pointB) {
+  return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+}
+
+export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType, sortTime, sortPrice, sortDay };

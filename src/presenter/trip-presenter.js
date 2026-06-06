@@ -7,7 +7,7 @@ import ListEmpty from '../view/no-point-view.js';
 import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
 import { updateItem } from '../utils/common.js';
-import { sortTime, sortPrice } from '../utils/point.js';
+import { sortTime, sortPrice, sortDay } from '../utils/point.js';
 import { SortType } from '../const.js';
 
 export default class TripPresenter {
@@ -37,11 +37,11 @@ export default class TripPresenter {
 
   init() {
     // извлекаю данные из модели точек: массив точек, массив offers, массив destinations
-    this.#listPoints = [...this.#pointsModel.points];
+    this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
     this.#listOffers = [...this.#pointsModel.offers];
     this.#listDestinations = [...this.#pointsModel.destinations];
 
-    this.#sourcedListPoints = [...this.#pointsModel.points];
+    this.#sourcedListPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
 
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
     this.#filterContainer = this.#headerContainer.querySelector(
@@ -85,14 +85,12 @@ export default class TripPresenter {
     switch (sortType) {
       case SortType.TIME:
         this.#listPoints.sort(sortTime);
-        console.log('TIME: ', this.#listPoints);
         break;
       case SortType.PRICE:
         this.#listPoints.sort(sortPrice);
-        console.log('PRICE: ', this.#listPoints);
         break;
       default:
-        this.#listPoints = [...this.#sourcedListPoints];
+        this.#listPoints = [...this.#sourcedListPoints]; // в моках даты как бог на душу послал поэтому и здесь соритрую
     }
 
     this.#currentSortType = sortType;
@@ -104,8 +102,8 @@ export default class TripPresenter {
     }
 
     this.#sortPoints(sortType);
-    // - Очищаем список;
-    // - Рендерим список заново;
+    this.#clearListPoint();
+    this.#renderList();
   };
 
   // метод отвечающий за отрисовку списка точек в main
