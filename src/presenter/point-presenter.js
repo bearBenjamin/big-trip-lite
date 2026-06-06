@@ -2,6 +2,11 @@ import PointTripEvent from '../view/point-trip-view';
 import FormEditEvent from '../view/form-edit-view';
 import { render, replace, remove } from '../framework/render';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class PointPresenter {
   #listEventContainer = null;
   #point = null;
@@ -10,12 +15,15 @@ export default class PointPresenter {
   #pointComponent = null;
   #formEditComponent = null;
   #handleDataChange = null;
+  #handleModeChange = null;
+  #mode = Mode.DEFAULT;
 
-  constructor({ listEventComponent, offers, destinations, onDataChange }) {
+  constructor({ listEventComponent, offers, destinations, onDataChange, onModeChange }) {
     this.#listEventContainer = listEventComponent;
     this.#offers = offers;
     this.#destinations = destinations;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(point) {
@@ -46,14 +54,11 @@ export default class PointPresenter {
       return;
     }
 
-    console.log('prevPointComponent: ', prevPointComponent);
-    console.log('prevFormEditComponent: ', prevFormEditComponent);
-    // проверка на наличие в DOM, чтобы не менять не существующий элемент
-    if (this.#listEventContainer.contains(prevPointComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#listEventContainer.contains(prevFormEditComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#formEditComponent, prevFormEditComponent.element);
     }
 
@@ -66,22 +71,30 @@ export default class PointPresenter {
     remove(this.#formEditComponent);
   }
 
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToPoint();
+    }
+  }
+
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       this.#replaceFormToPoint();
-      // document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
 
   #replaceFormToPoint() {
     replace(this.#pointComponent, this.#formEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #replacePointToForm() {
     replace(this.#formEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
   #handleFavoriteClick = () => {

@@ -97,6 +97,7 @@ export default class TripPresenter {
       offers,
       destinations,
       onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange
     });
 
     pointPresenter.init(point);
@@ -105,7 +106,6 @@ export default class TripPresenter {
 
   #clearListPoint() {
     this.#listPointPresenters.forEach((presenter) => {
-      console.log('presenter: ', presenter);
       presenter.destroy();
     });
 
@@ -115,5 +115,9 @@ export default class TripPresenter {
   #handlePointChange = (updatePoint) => {
     this.#listPoints = updateItem(this.#listPoints, updatePoint);
     this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
+  };
+
+  #handleModeChange = () => {
+    this.#listPointPresenters.forEach((presenter) => presenter.resetView());
   };
 }
