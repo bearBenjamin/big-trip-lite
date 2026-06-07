@@ -4,21 +4,26 @@ import { getRandomArrayElement, getRandomInteger } from '../utils/common.js';
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 
+const generatePicturesForCity = (descriptions) => descriptions.map((description) => ({
+  src: `https://loremflickr.com/248/152?random=${Math.floor(Math.random() * 10000)}`,
+  description: description
+}));
+
 const destinationsData = [
   {
     name: 'Amsterdam',
     description: 'Amsterdam is the charming capital of the Netherlands, famous for its historic canals and vibrant cycling culture...',
-    picturesData: ['The Van Gogh Museum', 'The Canals of Amsterdam', 'Vondelpark']
+    pictures: generatePicturesForCity(['The Van Gogh Museum', 'The Canals of Amsterdam', 'Vondelpark'])
   },
   {
     name: 'Geneva',
     description: 'Geneva is a stunning Swiss city nestled on the shores of Europe\'s largest Alpine lake...',
-    picturesData: ['Jet d\'Eau', 'The Old Town (Vieille Ville)']
+    pictures: generatePicturesForCity(['Jet d\'Eau', 'The Old Town (Vieille Ville)'])
   },
   {
     name: 'Chamonix',
     description: 'Chamonix is a world-famous Alpine resort town nestled at the base of Mont Blanc...',
-    picturesData: ['Mont Blanc', 'Aiguille du Midi', 'Mer de Glace']
+    pictures: generatePicturesForCity(['Mont Blanc', 'Aiguille du Midi', 'Mer de Glace'])
   }
 ];
 
@@ -269,20 +274,7 @@ const generatePointDates = () => {
   };
 };
 
-const getRandomDestination = (destinations) => {
-  const randomCity = getRandomArrayElement(destinations);
-
-  const pictures = randomCity.picturesData.map((description) => ({
-    src: `https://loremflickr.com/248/152?random=${Math.random()}`,
-    description: description
-  }));
-
-  return {
-    name: randomCity.name,
-    description: randomCity.description,
-    pictures: pictures
-  };
-};
+const getRandomDestination = (destinations) => getRandomArrayElement(destinations);
 
 const getRandomOffer = (offers, type) => {
   const currentOffers = getTypeOffers(offers, type); // получаю объект из массива соответствующего типа
