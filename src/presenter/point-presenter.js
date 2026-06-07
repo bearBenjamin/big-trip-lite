@@ -100,11 +100,11 @@ export default class PointPresenter {
   }
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite}); // обновляем информацию по ключу Фаворит в точке
   };
 
   #handleFormSubmit = (point) => {
-    this.#handleDataChange(point);
+    this.#handleDataChange(point); // должно обновлять все ключи точки для которой вызвана форма - пока не работает
     this.#replaceFormToPoint();
   };
 }
