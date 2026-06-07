@@ -1,5 +1,9 @@
 import dayjs from 'dayjs';
 import durationPlugin from 'dayjs/plugin/duration';
+import utc from 'dayjs/plugin/utc';
+
+// плагин чтобы время не пересчитывалось на мой часовой пояс, т.е. сейчас идет +3 часа ко времени из данных
+dayjs.extend(utc);
 
 //подключаю плагин для расчета разницы
 dayjs.extend(durationPlugin);
@@ -12,24 +16,25 @@ const MACHINE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 
 const FORM__DATE__TIME__FORMAT = 'DD/MM/YY HH:mm';
 
+// добавляю перед форматированием .utc() чтобы не было разницы в 3 часа
 function humanazePointDueDate (dueDate) {
-  return dueDate ? dayjs(dueDate).format(DATE__FORMAT).toUpperCase() : '';
+  return dueDate ? dayjs(dueDate).utc().format(DATE__FORMAT).toUpperCase() : '';
 }
 
 function formatMachineDate(dueDate) {
-  return dueDate ? dayjs(dueDate).format(MACHINE_DATE_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).utc().format(MACHINE_DATE_FORMAT) : '';
 }
 
 function humanizePointTime(dueDate) {
-  return dueDate ? dayjs(dueDate).format(HUMAN_TIME_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).utc().format(HUMAN_TIME_FORMAT) : '';
 }
 
 function formatMachineTime(dueDate) {
-  return dueDate ? dayjs(dueDate).format(MACHINE_TIME_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).utc().format(MACHINE_TIME_FORMAT) : '';
 }
 
 function formatFormDateTime(dueDate) {
-  return dueDate ? dayjs(dueDate).format(FORM__DATE__TIME__FORMAT) : '';
+  return dueDate ? dayjs(dueDate).utc().format(FORM__DATE__TIME__FORMAT) : '';
 }
 
 function getEventDuration(dateFrom, dateTo) {

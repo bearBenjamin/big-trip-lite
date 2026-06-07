@@ -45,7 +45,7 @@ export default class PointPresenter {
       point: this.#point,
       offers: this.#offers,
       destinations: this.#destinations,
-      onFormSubmit: () => this.#handleFormSubmit,
+      onFormSubmit: this.#handleFormSubmit,
       onFormBtnCloseClick: () => this.#replaceFormToPoint(),
     });
 
@@ -104,7 +104,7 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (point) => {
-    this.#handleDataChange(point); // должно обновлять все ключи точки для которой вызвана форма - пока не работает
     this.#replaceFormToPoint();
+    this.#handleDataChange(point);
   };
 }
