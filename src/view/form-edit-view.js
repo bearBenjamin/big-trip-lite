@@ -1,6 +1,7 @@
-// import AbstractView from '../framework/view/abstract-view.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);
@@ -175,6 +176,10 @@ export default class FormEditEvent extends AbstractStatefulView {
   #handleFormSubmitClick = null;
   #handleFormBtnCloseClick = null;
 
+  //переменные для хранения инстансов календарей
+  #datepickerFrom = null;
+  #datepickerTo = null;
+
   constructor ({ point, offers, destinations, onFormSubmit, onFormBtnCloseClick }) {
     super();
     this._setState(FormEditEvent.parsePointToState(point));
@@ -189,11 +194,90 @@ export default class FormEditEvent extends AbstractStatefulView {
     return createTemplate(this._state, this.#offers, this.#destinations);
   }
 
+  reset(point) {
+    this.updateElement(FormEditEvent.parsePointToState(point));
+  }
+
+  // метод удаления элемента календаря
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
   _restoreHandlers = () => {
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+
+    //Календари пересоздаются при каждом обновлении DOM-элемента
+    this.#setDatepickers();
+  };
+
+  // метод инициализации flatpickr
+  #setDatepickers = () => {
+    const dateStartElement = this.element.querySelector('.event__input--time[name="event-start-time"]');
+    const dateEndElement = this.element.querySelector('.event__input--time[name="event-end-time"]');
+
+    const commonConfig = {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: 'd/m/y H:i',
+      allowInput: false,
+      disableMobile: true,
+    };
+
+    // Настройка для даты начала
+    this.#datepickerFrom = flatpickr(dateStartElement, {
+      ...commonConfig,
+      defaultDate: this._state.dateFrom,
+      minDate: new Date(),
+      onChange: this.#dateFromChangeHandler, // метод вызываемый при изменении даты начала
+    });
+
+    // Настройка для даты окончания
+    this.#datepickerTo = flatpickr(dateEndElement, {
+      ...commonConfig,
+      defaultDate: this._state.dateTo,
+      minDate: this._state.dateFrom, // Запрещаю выбирать дату окончания раньше даты начала
+      onChange: this.#dateToChangeHandler,// метод вызываемы при изменении даты окончания
+    });
+  };
+
+  // Обработчик изменения даты начала
+  #dateFromChangeHandler = ([userDate]) => {
+    if (!userDate) {
+      return;
+    }
+
+    // Обновляю минимальную дату для поля окончания события путешествия
+    this.#datepickerTo.set('minDate', userDate);
+
+    // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
+    this._setState({
+      dateFrom: userDate.toISOString(),
+    });
+  };
+
+  // Обработчик изменения даты окончания
+  #dateToChangeHandler = ([userDate]) => {
+    if (!userDate) {
+      return;
+    }
+
+    // Сохраняю изменение в стейт без перерисовки
+    this._setState({
+      dateTo: userDate.toISOString(),
+    });
   };
 
   #typeChangeHandler = (evt) => {
@@ -231,6 +315,14 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    // Собираю актуальный массив выбранных офферов
+    const checkedBoxes = this.element.querySelectorAll('.event__offer-checkbox:checked');
+    const selectedOffers = Array.from(checkedBoxes).map((box) => Number(box.dataset.offerId));
+
+    this._setState({
+      offers: selectedOffers
+    });
+
     const updatedPoint = FormEditEvent.parseStateToPoint(this._state);
     this.#handleFormSubmitClick(updatedPoint);
   };
