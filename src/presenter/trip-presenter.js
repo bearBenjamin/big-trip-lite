@@ -17,36 +17,45 @@ export default class TripPresenter {
   #filterContainer = null; // контейнер фильтров
   #listContainer = null; // контейнер списка точек
   #pointsModel = {}; // данные обо всех точка путешествия из модели точек
+  #offersModel = []; // данные обо всех offers из модели offers
+  #destinationsModel = []; // данные обо всех destinations из модели destinations;
   #tripInfoComponent = new TripInfoView(); // компонент информации о всем путешествии
   #filterComponent = null; // компонент фильтров
   #sortComponent = null; // компонент сортировки
   #listEventComponent = new ListTripEvents(); // компонент самого списка без точек <ul></ul>
-  #listPoints = []; // массив точек из модели точек;
-  #listOffers = []; // массив предложений из модели точек - здесь наверное потом этот массив должен приходить из модели предложений
-  #listDestinations = []; // массив описаний из модели точек - наверно в будущем будет приходить из модели описаний
   #listPointPresenters = new Map(); // мапа - списка всех презентеров точек - нужна для навигации и внесению изменений в события отдельных точек
   #currentSortType = SortType.DAY; // объект (флаг) - текущего события (по дефолту - сортировка по Day)
-  #sourcedListPoints = []; // массив с точками до сортировки - нужен чтобы сбросить сортировку в дефолтное состояния
 
-  constructor({ headerContainer, mainContainer, pointsModel }) {
+  constructor({ headerContainer, mainContainer, pointsModel, offersModel, destinationsModel }) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel; // модель точек путешествия;
+    this.#offersModel = offersModel; // модель offers;
+    this.#destinationsModel = destinationsModel; // модель destinations;
   }
 
-  get points () {
-    return this.#pointsModel.points;
+  get points() {
+    switch (this.#currentSortType) {
+      case SortType.DAY:
+        return [ ...this.#pointsModel.points].sort(sortDay);
+      case SortType.TIME:
+        return [...this.#pointsModel.points].sort(sortTime);
+      case SortType.PRICE:
+        return [...this.#pointsModel.points].sort(sortPrice);
+    }
+
+    return [...this.#pointsModel.points].sort(sortDay);
+  }
+
+  get offers() {
+    return this.#offersModel.offers;
+  }
+
+  get destinations() {
+    return this.#destinationsModel.destinations;
   }
 
   init() {
-    // извлекаю данные из модели точек: массив точек, массив offers, массив destinations
-    this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
-    this.#listOffers = [...this.#pointsModel.offers];
-    this.#listDestinations = [...this.#pointsModel.destinations];
-
-    this.#sourcedListPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
-    // массивы this.#listPoints и this.#sourcedListPoints - на момент инициализации должны быть одинаковыми
-
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
     this.#filterContainer = this.#headerContainer.querySelector('.trip-controls__filters'); // получаю контейнер для фильтров из контейнера шапки
 
@@ -70,7 +79,7 @@ export default class TripPresenter {
 
   // метод отвечающий за отрисовку фильтров точек в шапке
   #renderFilter() {
-    const filtersData = generateFilter(this.#listPoints); // заранее фильтрую список точек и сохраняю объект с данными по фильтрам
+    const filtersData = generateFilter(this.points); // заранее фильтрую список точек и сохраняю объект с данными по фильтрам
     this.#filterComponent = new FilterView(filtersData); // прокидываю полученные данные фильтрации в представление фильтров
     render(this.#filterComponent, this.#filterContainer); // отрисовываю фильтры на основе переданных данных по фильтрам
   }
@@ -80,23 +89,8 @@ export default class TripPresenter {
     this.#sortComponent = new SortView({
       onSortTypeChange: this.#handleSortChange,
     }); // в компонент сортировки отдаю обработчик отвечающий за клики по кнопкам сортировки
+
     render(this.#sortComponent, this.#listContainer);
-  }
-
-  // метод сортировки списка точек по типу
-  #sortPoints(sortType) {
-    switch (sortType) {
-      case SortType.TIME:
-        this.#listPoints.sort(sortTime);
-        break;
-      case SortType.PRICE:
-        this.#listPoints.sort(sortPrice);
-        break;
-      default:
-        this.#listPoints = [...this.#sourcedListPoints];
-    }
-
-    this.#currentSortType = sortType;
   }
 
   // обработчик события смены типа сортировки
@@ -105,14 +99,14 @@ export default class TripPresenter {
       return;
     } // если кликаем на текущую сортировку - выходим, т.к. список точек уже отсортирован и ничего перерисовывать не надо
 
-    this.#sortPoints(sortType); // сортирую точки по выбраному типу
+    this.#currentSortType = sortType;
     this.#clearListPoint(); // очищаю список точек
     this.#renderList(); // отрисовываю новый согласно выбранного типа сортировки
   };
 
   // метод отвечающий за отрисовку списка точек в main
   #renderList() {
-    if (this.#listPoints.length === 0) {
+    if (this.points.length === 0) {
       render(new ListEmpty(), this.#listContainer);
       return;
     }
@@ -121,13 +115,9 @@ export default class TripPresenter {
     render(this.#listEventComponent, this.#listContainer);
 
     //отрисовываю точки списка точек путешествия
-    for (let i = 0; i < this.#listPoints.length; i += 1) {
-      this.#renderPoint(
-        this.#listPoints[i],
-        this.#listOffers,
-        this.#listDestinations,
-      );
-    }
+    this.points.forEach((point) => {
+      this.#renderPoint(point, this.offers, this.destinations);
+    });
   }
 
   // метод отвечающий за отрисовку одной точки
@@ -155,8 +145,7 @@ export default class TripPresenter {
 
   // событие отвечающее за измененние данных в точках
   #handlePointChange = (updatePoint) => {
-    this.#listPoints = updateItem(this.#listPoints, updatePoint); // вызываем функцию отвечающую за изменение конкретной точки в списке
-    this.#sourcedListPoints = updateItem(this.#sourcedListPoints, updatePoint); // дублируем в список отвечающий за дефолтное состояние сортировки
+    updateItem(this.points, updatePoint);
     this.#listPointPresenters.get(updatePoint.id).init(updatePoint); // сохраняем изменение в мапу презентеров точек для конкретной точки и перерисовываем эту точку
   };
 
