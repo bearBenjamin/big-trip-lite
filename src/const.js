@@ -30,4 +30,18 @@ const SortType = {
   PRICE: 'price'
 };
 
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType };
+// объект где храним описания действий пользователя
+const UserAction = {
+  UPDATE__POINT: 'UPDATE__POINT',
+  ADD__POINT: 'ADD__POINT',
+  DELETE__POINT: 'DELETE__POINT',
+};
+
+// объект где хранятся типы обновлений: точечное (PATCH), маленькое (MINOR) и глобальное (MAJOR)
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType };

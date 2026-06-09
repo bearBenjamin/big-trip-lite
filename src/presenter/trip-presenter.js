@@ -32,6 +32,8 @@ export default class TripPresenter {
     this.#pointsModel = pointsModel; // модель точек путешествия;
     this.#offersModel = offersModel; // модель offers;
     this.#destinationsModel = destinationsModel; // модель destinations;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
@@ -93,6 +95,14 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#listContainer);
   }
 
+  #handleModelEvent = (updateType, data) => {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда удалили точку)
+    // - обновить все отрисованное (например, при переключении фильтра)
+  };
+
   // обработчик события смены типа сортировки
   #handleSortChange = (sortType) => {
     if (this.#currentSortType === sortType) {
@@ -126,7 +136,7 @@ export default class TripPresenter {
       listEventComponent: this.#listEventComponent.element,
       offers,
       destinations,
-      onDataChange: this.#handlePointChange, // событие изменения данных в точке
+      onDataChange: this.#handleViewAction, // событие изменения данных в точке
       onModeChange: this.#handleModeChange, // событие отслеживающее изменение в флаге состояния - точка / форма
     });
 
@@ -144,10 +154,17 @@ export default class TripPresenter {
   }
 
   // событие отвечающее за измененние данных в точках
-  #handlePointChange = (updatePoint) => {
-    updateItem(this.points, updatePoint);
-    this.#listPointPresenters.get(updatePoint.id).init(updatePoint); // сохраняем изменение в мапу презентеров точек для конкретной точки и перерисовываем эту точку
-  };
+  // #handlePointChange = (updatePoint) => {
+  //   updateItem(this.points, updatePoint);
+  //   this.#listPointPresenters.get(updatePoint.id).init(updatePoint); // сохраняем изменение в мапу презентеров точек для конкретной точки и перерисовываем эту точку
+  // };
+  #handleViewAction(actionType, updateType, update) {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  }
 
   // событие реагирующее на изменение состояния флага - точка / форма
   // вызывает торчащий наружу метод представления презентера точки, которые как раз проверяет флаг Mode
