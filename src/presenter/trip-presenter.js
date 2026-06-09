@@ -34,6 +34,10 @@ export default class TripPresenter {
     this.#pointsModel = pointsModel; // модель точек путешествия;
   }
 
+  get points () {
+    return this.#pointsModel.points;
+  }
+
   init() {
     // извлекаю данные из модели точек: массив точек, массив offers, массив destinations
     this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
