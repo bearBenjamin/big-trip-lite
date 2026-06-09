@@ -6,9 +6,8 @@ import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
-import { updateItem } from '../utils/common.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point.js';
-import { SortType } from '../const.js';
+import { SortType, UpdateType, UserAction } from '../const.js';
 
 export default class TripPresenter {
   #headerContainer = null; // контейнер шапки
@@ -95,12 +94,25 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#listContainer);
   }
 
+  // обработчик вызываемы при изменении модели точек
   #handleModelEvent = (updateType, data) => {
     console.log(updateType, data);
     // В зависимости от типа изменений решаем, что делать:
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда удалили точку)
     // - обновить все отрисованное (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this.#listPointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        // - обновить список (например, когда удалил точку)
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        break;
+    }
   };
 
   // обработчик события смены типа сортировки
@@ -153,18 +165,32 @@ export default class TripPresenter {
     this.#listPointPresenters.clear();
   }
 
-  // событие отвечающее за измененние данных в точках
-  // #handlePointChange = (updatePoint) => {
-  //   updateItem(this.points, updatePoint);
-  //   this.#listPointPresenters.get(updatePoint.id).init(updatePoint); // сохраняем изменение в мапу презентеров точек для конкретной точки и перерисовываем эту точку
-  // };
-  #handleViewAction(actionType, updateType, update) {
+  // событие отвечающее за обновление данных в модели точек после действий пользователя в представлении (View)
+  #handleViewAction = (actionType, updateType, update) => {
     console.log(actionType, updateType, update);
+    console.log('this.#pointsModel: ', this.#pointsModel);
     // Здесь будем вызывать обновление модели.
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
     // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
     // update - обновленные данные
-  }
+    switch (actionType) {
+      case UserAction.UPDATE__POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        console.log('this.#pointsModel: ', this.#pointsModel);
+        break;
+
+      case UserAction.ADD__POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        console.log('this.#pointsModel: ', this.#pointsModel);
+        break;
+
+      case UserAction.DELETE__POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        console.log('this.#pointsModel: ', this.#pointsModel);
+        break;
+    }
+
+  };
 
   // событие реагирующее на изменение состояния флага - точка / форма
   // вызывает торчащий наружу метод представления презентера точки, которые как раз проверяет флаг Mode

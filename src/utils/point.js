@@ -3,7 +3,7 @@ import durationPlugin from 'dayjs/plugin/duration';
 import utc from 'dayjs/plugin/utc';
 
 // плагин чтобы время не пересчитывалось на мой часовой пояс, т.е. сейчас идет +3 часа ко времени из данных
-dayjs.extend(utc);
+dayjs.extend(utc); // возможно это лишнее надо будет убрать и посмотреть, т.к. скорей всего дело было в flatpick - а там я вроде как все победил
 
 //подключаю плагин для расчета разницы
 dayjs.extend(durationPlugin);
@@ -38,7 +38,7 @@ function formatFormDateTime(dueDate) {
 }
 
 function getEventDuration(dateFrom, dateTo) {
-  const diff = dayjs(dateTo).diff(dayjs(dateFrom)); // Разница в миллисекундах
+  const diff = dayjs(dateTo).utc().diff(dayjs(dateFrom).utc()); // Разница в миллисекундах
   const eventDuration = dayjs.duration(diff); // Превращаю в объект длительности
 
   const days = eventDuration.days();
@@ -53,6 +53,10 @@ function getEventDuration(dateFrom, dateTo) {
     return `${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
   }
   return `${String(minutes).padStart(2, '0')}M`;
+}
+
+function serializeDate(date) {
+  return date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : '';
 }
 
 function getTypeOffers(offers, type) {
@@ -77,4 +81,4 @@ function sortDay(pointA, pointB) {
   return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 }
 
-export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType, sortTime, sortPrice, sortDay };
+export { humanazePointDueDate, formatMachineDate, formatMachineTime, formatFormDateTime, humanizePointTime, getEventDuration, getTypeOffers, getCapitalaizedType, sortTime, sortPrice, sortDay, serializeDate };
