@@ -1,13 +1,14 @@
 import TripInfoView from '../view/trip-info-view.js';
-import FilterView from '../view/filter-view.js';
+// import FilterView from '../view/filter-view.js';
 import ListTripEvents from '../view/list-trip-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
-import { generateFilter } from '../mock/filter.js';
+// import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point.js';
-import { SortType, UpdateType, UserAction } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
+import {filter} from '../utils/filter.js';
 
 export default class TripPresenter {
   #headerContainer = null; // контейнер шапки
@@ -18,7 +19,7 @@ export default class TripPresenter {
   #pointsModel = {}; // данные обо всех точка путешествия из модели точек
   #offersModel = []; // данные обо всех offers из модели offers
   #destinationsModel = []; // данные обо всех destinations из модели destinations;
-  #filterModel = [];
+  #filtersModel = [];
   #tripInfoComponent = new TripInfoView(); // компонент информации о всем путешествии
   #filterComponent = null; // компонент фильтров
   #sortComponent = null; // компонент сортировки
@@ -26,6 +27,7 @@ export default class TripPresenter {
   #listEmptyComponent = null; // компонент пустого списка
   #listPointPresenters = new Map(); // мапа - списка всех презентеров точек - нужна для навигации и внесению изменений в события отдельных точек
   #currentSortType = SortType.DAY; // объект (флаг) - текущего события (по дефолту - сортировка по Day)
+  #filterType = FilterType.EVERITHING;
 
   constructor({
     headerContainer,
@@ -33,29 +35,34 @@ export default class TripPresenter {
     pointsModel,
     offersModel,
     destinationsModel,
-    filterModel
+    filterModel,
   }) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel; // модель точек путешествия;
     this.#offersModel = offersModel; // модель offers;
     this.#destinationsModel = destinationsModel; // модель destinations;
-    this.#filterModel = filterModel;
+    this.#filtersModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
+    this.#filterType = this.#filtersModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.#filterType](points);
+
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [...this.#pointsModel.points].sort(sortDay);
+        return filteredPoints.sort(sortDay);
       case SortType.TIME:
-        return [...this.#pointsModel.points].sort(sortTime);
+        return filteredPoints.sort(sortTime);
       case SortType.PRICE:
-        return [...this.#pointsModel.points].sort(sortPrice);
+        return filteredPoints.sort(sortPrice);
     }
 
-    return [...this.#pointsModel.points].sort(sortDay);
+    return filteredPoints.sort(sortDay);
   }
 
   get offers() {
@@ -75,10 +82,7 @@ export default class TripPresenter {
     this.#listContainer = this.#mainContainer.querySelector('.trip-events'); // получаю контейнер для списка точек путешествия из контейнера main
 
     this.#renderInfoTrip(); // метод отвечающий за отрисовку общей информации о путешествии в шапке
-    this.#renderFilter(); // метод отвечающий за отрисовку фильтров точек в шапке
 
-    // this.#renderSort(); // метод отвечающий за отрисовку сортировки точек в main
-    // this.#renderList(); // метод отвечающий за отрисовку списка точек в main
     this.#renderBoardTrip();
   }
 
@@ -89,13 +93,6 @@ export default class TripPresenter {
       this.#tripInfoContainer,
       RenderPosition.AFTERBEGIN,
     );
-  }
-
-  // метод отвечающий за отрисовку фильтров точек в шапке
-  #renderFilter() {
-    const filtersData = generateFilter(this.points); // заранее фильтрую список точек и сохраняю объект с данными по фильтрам
-    this.#filterComponent = new FilterView(filtersData); // прокидываю полученные данные фильтрации в представление фильтров
-    render(this.#filterComponent, this.#filterContainer); // отрисовываю фильтры на основе переданных данных по фильтрам
   }
 
   #renderBoardTrip() {
@@ -120,7 +117,9 @@ export default class TripPresenter {
   }
 
   #renderNoPoint() {
-    this.#listEmptyComponent = new ListEmpty();
+    this.#listEmptyComponent = new ListEmpty({
+      filterType: this.#filterType
+    });
     render(this.#listEmptyComponent, this.#listContainer);
   }
 

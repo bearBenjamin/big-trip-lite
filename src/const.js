@@ -18,10 +18,10 @@ const FilterType = {
 };
 
 const MessageNoEvent = {
-  EVERITHING: 'Click New Event to create your first point',
-  PAST: 'There are no past events',
-  PRESENT: 'There are no present events now',
-  FUTURE: 'There are no future events now',
+  everithing: 'Click New Event to create your first point',
+  past: 'There are no past events',
+  present: 'There are no present events now',
+  future: 'There are no future events now',
 };
 
 const SortType = {
