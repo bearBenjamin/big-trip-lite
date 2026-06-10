@@ -47,6 +47,7 @@ export default class PointPresenter {
       offers: this.#offers,
       destinations: this.#destinations,
       onFormSubmit: this.#handleFormSubmit,
+      onPointDeleteClick: this.#handleBtnDeleteClick,
       onFormBtnCloseClick: this.#handleFormBtnCloseClick,
     });
 
@@ -102,7 +103,6 @@ export default class PointPresenter {
   }
 
   #handleFavoriteClick = () => {
-    // this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite}); // обновляем информацию по ключу Фаворит в точке
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
       UpdateType.PATCH,
@@ -112,11 +112,18 @@ export default class PointPresenter {
 
   #handleFormSubmit = (point) => {
     this.#replaceFormToPoint();
-    // this.#handleDataChange(point);
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
       UpdateType.PATCH,
       point,
+    );
+  };
+
+  #handleBtnDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE__POINT,
+      UpdateType.MINOR,
+      point
     );
   };
 

@@ -174,18 +174,20 @@ export default class FormEditEvent extends AbstractStatefulView {
   #offers = [];
   #destinations = [];
   #handleFormSubmitClick = null;
+  #handleBtnDeleteClick = null;
   #handleFormBtnCloseClick = null;
 
   //переменные для хранения инстансов календарей
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor ({ point, offers, destinations, onFormSubmit, onFormBtnCloseClick }) {
+  constructor ({ point, offers, destinations, onFormSubmit, onPointDeleteClick, onFormBtnCloseClick }) {
     super();
     this._setState(FormEditEvent.parsePointToState(point));
     this.#offers = offers;
     this.#destinations = destinations;
     this.#handleFormSubmitClick = onFormSubmit;
+    this.#handleBtnDeleteClick = onPointDeleteClick;
     this.#handleFormBtnCloseClick = onFormBtnCloseClick;
     this._restoreHandlers();
   }
@@ -215,6 +217,7 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#btnDeleteHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
@@ -325,6 +328,11 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     const updatedPoint = FormEditEvent.parseStateToPoint(this._state);
     this.#handleFormSubmitClick(updatedPoint);
+  };
+
+  #btnDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleBtnDeleteClick(FormEditEvent.parseStateToPoint(this._state));
   };
 
   #formBtnCloseHandler = () => {

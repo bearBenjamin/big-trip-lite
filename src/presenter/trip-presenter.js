@@ -1,7 +1,7 @@
 import TripInfoView from '../view/trip-info-view.js';
 import FilterView from '../view/filter-view.js';
 import ListTripEvents from '../view/list-trip-view.js';
-import { render, RenderPosition } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import { generateFilter } from '../mock/filter.js';
@@ -18,19 +18,29 @@ export default class TripPresenter {
   #pointsModel = {}; // данные обо всех точка путешествия из модели точек
   #offersModel = []; // данные обо всех offers из модели offers
   #destinationsModel = []; // данные обо всех destinations из модели destinations;
+  #filterModel = [];
   #tripInfoComponent = new TripInfoView(); // компонент информации о всем путешествии
   #filterComponent = null; // компонент фильтров
   #sortComponent = null; // компонент сортировки
-  #listEventComponent = new ListTripEvents(); // компонент самого списка без точек <ul></ul>
+  #listEventComponent = null; // компонент самого списка без точек <ul></ul>
+  #listEmptyComponent = null; // компонент пустого списка
   #listPointPresenters = new Map(); // мапа - списка всех презентеров точек - нужна для навигации и внесению изменений в события отдельных точек
   #currentSortType = SortType.DAY; // объект (флаг) - текущего события (по дефолту - сортировка по Day)
 
-  constructor({ headerContainer, mainContainer, pointsModel, offersModel, destinationsModel }) {
+  constructor({
+    headerContainer,
+    mainContainer,
+    pointsModel,
+    offersModel,
+    destinationsModel,
+    filterModel
+  }) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel; // модель точек путешествия;
     this.#offersModel = offersModel; // модель offers;
     this.#destinationsModel = destinationsModel; // модель destinations;
+    this.#filterModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
@@ -38,7 +48,7 @@ export default class TripPresenter {
   get points() {
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [ ...this.#pointsModel.points].sort(sortDay);
+        return [...this.#pointsModel.points].sort(sortDay);
       case SortType.TIME:
         return [...this.#pointsModel.points].sort(sortTime);
       case SortType.PRICE:
@@ -58,15 +68,18 @@ export default class TripPresenter {
 
   init() {
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
-    this.#filterContainer = this.#headerContainer.querySelector('.trip-controls__filters'); // получаю контейнер для фильтров из контейнера шапки
+    this.#filterContainer = this.#headerContainer.querySelector(
+      '.trip-controls__filters',
+    ); // получаю контейнер для фильтров из контейнера шапки
 
     this.#listContainer = this.#mainContainer.querySelector('.trip-events'); // получаю контейнер для списка точек путешествия из контейнера main
 
     this.#renderInfoTrip(); // метод отвечающий за отрисовку общей информации о путешествии в шапке
     this.#renderFilter(); // метод отвечающий за отрисовку фильтров точек в шапке
 
-    this.#renderSort(); // метод отвечающий за отрисовку сортировки точек в main
-    this.#renderList(); // метод отвечающий за отрисовку списка точек в main
+    // this.#renderSort(); // метод отвечающий за отрисовку сортировки точек в main
+    // this.#renderList(); // метод отвечающий за отрисовку списка точек в main
+    this.#renderBoardTrip();
   }
 
   // метод отвечающий за отрисовку общей информации о путешествии в шапке
@@ -85,18 +98,45 @@ export default class TripPresenter {
     render(this.#filterComponent, this.#filterContainer); // отрисовываю фильтры на основе переданных данных по фильтрам
   }
 
+  #renderBoardTrip() {
+    if (this.points.length === 0) {
+      this.#renderNoPoint();
+      return;
+    }
+
+    this.#renderSort();
+    this.#renderListComponent();
+
+    //отрисовываю точки списка точек путешествия
+    this.points.forEach((point) => {
+      this.#renderPoint(point, this.offers, this.destinations);
+    });
+  }
+
+  #renderListComponent() {
+    this.#listEventComponent = new ListTripEvents();
+    //отрисоваваю контейнер списка - <ul></ul>
+    render(this.#listEventComponent, this.#listContainer);
+  }
+
+  #renderNoPoint() {
+    this.#listEmptyComponent = new ListEmpty();
+    render(this.#listEmptyComponent, this.#listContainer);
+  }
+
   // метод отвечающий за отрисовку сортировки точек в main
   #renderSort() {
     this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortChange,
     }); // в компонент сортировки отдаю обработчик отвечающий за клики по кнопкам сортировки
 
     render(this.#sortComponent, this.#listContainer);
   }
 
-  // обработчик вызываемы при изменении модели точек
+  // обработчик вызываемы при изменении модели точек - посути отвечает за перерисовку если данные в модели обновились
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
+    // console.log(updateType, data);
     // В зависимости от типа изменений решаем, что делать:
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда удалили точку)
@@ -108,9 +148,13 @@ export default class TripPresenter {
         break;
       case UpdateType.MINOR:
         // - обновить список (например, когда удалил точку)
+        this.#clearListBoard();
+        this.#renderBoardTrip();
         break;
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
+        this.#clearListBoard({resetSortType: true});
+        this.#renderBoardTrip();
         break;
     }
   };
@@ -122,25 +166,9 @@ export default class TripPresenter {
     } // если кликаем на текущую сортировку - выходим, т.к. список точек уже отсортирован и ничего перерисовывать не надо
 
     this.#currentSortType = sortType;
-    this.#clearListPoint(); // очищаю список точек
-    this.#renderList(); // отрисовываю новый согласно выбранного типа сортировки
+    this.#clearListBoard();
+    this.#renderBoardTrip(); // отрисовываю новый согласно выбранного типа сортировки
   };
-
-  // метод отвечающий за отрисовку списка точек в main
-  #renderList() {
-    if (this.points.length === 0) {
-      render(new ListEmpty(), this.#listContainer);
-      return;
-    }
-
-    //отрисоваваю контейнер списка - <ul></ul>
-    render(this.#listEventComponent, this.#listContainer);
-
-    //отрисовываю точки списка точек путешествия
-    this.points.forEach((point) => {
-      this.#renderPoint(point, this.offers, this.destinations);
-    });
-  }
 
   // метод отвечающий за отрисовку одной точки
   #renderPoint(point, offers, destinations) {
@@ -156,19 +184,22 @@ export default class TripPresenter {
     this.#listPointPresenters.set(point.id, pointPresenter); // сохраняю презентер точки в мапе - содержащей весь массив презентеров точек
   }
 
-  // метод очистки списка точек - удаляет презентеры точек из мапы и чистит сам массив
-  #clearListPoint() {
-    this.#listPointPresenters.forEach((presenter) => {
-      presenter.destroy();
-    });
-
+  #clearListBoard({ resetSortType = false } = {}) {
+    this.#listPointPresenters.forEach((presenter) => presenter.destroy());
     this.#listPointPresenters.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#listEventComponent);
+    remove(this.#listEmptyComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
 
-  // событие отвечающее за обновление данных в модели точек после действий пользователя в представлении (View)
+  // событие отвечающее за обновление данных в модели точек после действий пользователя в представлении (View) - посути следит за действиями пользователя и обновляет данные
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
-    console.log('this.#pointsModel: ', this.#pointsModel);
+    // console.log(actionType, updateType, update);
     // Здесь будем вызывать обновление модели.
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
     // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
@@ -176,20 +207,16 @@ export default class TripPresenter {
     switch (actionType) {
       case UserAction.UPDATE__POINT:
         this.#pointsModel.updatePoint(updateType, update);
-        console.log('this.#pointsModel: ', this.#pointsModel);
         break;
 
       case UserAction.ADD__POINT:
         this.#pointsModel.addPoint(updateType, update);
-        console.log('this.#pointsModel: ', this.#pointsModel);
         break;
 
       case UserAction.DELETE__POINT:
         this.#pointsModel.deletePoint(updateType, update);
-        console.log('this.#pointsModel: ', this.#pointsModel);
         break;
     }
-
   };
 
   // событие реагирующее на изменение состояния флага - точка / форма

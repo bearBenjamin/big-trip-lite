@@ -3,6 +3,7 @@ import { offersData, destinationsData } from './mock/point.js';
 import PointsModel from './model/points-model.js';
 import OffersModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
+import FiltersModel from './model/filter-model.js';
 
 const header = document.querySelector('.page-header');
 const main = document.querySelector('.page-main');
@@ -11,6 +12,7 @@ const main = document.querySelector('.page-main');
 const pointsModel = new PointsModel(offersData, destinationsData);
 const offersModel = new OffersModel();
 const destinationsModel = new DestinationsModel();
+const filterModel = new FiltersModel();
 
 // передаю в презентер путешествия - контейнер шапки, контейнер основного содержимого и данные о точках путешествия полученные из модели точек
 const TripComponent = new TripPresenter({
@@ -19,6 +21,7 @@ const TripComponent = new TripPresenter({
   pointsModel,
   offersModel,
   destinationsModel,
+  filterModel
 });
 
 // вызываю метод инициации основного презентера отвечающего за создание шапки и списка с точками путешествия
