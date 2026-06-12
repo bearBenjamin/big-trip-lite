@@ -11,17 +11,17 @@ const POINT__TYPE = [
 ];
 
 const FilterType = {
-  EVERITHING: 'all',
+  EVERITHING: 'everithing',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
 };
 
 const MessageNoEvent = {
-  EVERITHING: 'Click New Event to create your first point',
-  PAST: 'There are no past events',
-  PRESENT: 'There are no present events now',
-  FUTURE: 'There are no future events now',
+  everithing: 'Click New Event to create your first point',
+  past: 'There are no past events',
+  present: 'There are no present events now',
+  future: 'There are no future events now',
 };
 
 const SortType = {
@@ -30,4 +30,28 @@ const SortType = {
   PRICE: 'price'
 };
 
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType };
+// объект где храним описания действий пользователя
+const UserAction = {
+  UPDATE__POINT: 'UPDATE__POINT',
+  ADD__POINT: 'ADD__POINT',
+  DELETE__POINT: 'DELETE__POINT',
+};
+
+// объект где хранятся типы обновлений: точечное (PATCH), маленькое (MINOR) и глобальное (MAJOR)
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const EMPTY__POINT = {
+  type: 'flight',
+  destination: {},
+  dateFrom: null,
+  dateTo: null,
+  price: 0,
+  offers: [],
+  isFavorite: false,
+};
+
+export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT };
