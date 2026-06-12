@@ -233,6 +233,7 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
 
     //Календари пересоздаются при каждом обновлении DOM-элемента
@@ -307,6 +308,16 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.updateElement({
       type: userType,
       offers: [], // Сбрасываем выбранные офферы, так как у нового типа будут свои опции
+    });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+    const newPrice = evt.target.value;
+    console.log('newPrice: ', newPrice);
+
+    this.updateElement({
+      price: newPrice,
     });
   };
 
