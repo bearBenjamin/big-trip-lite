@@ -100,9 +100,9 @@ const createDestinationListTemplate = (destinationsData) => {
 
 const createTemplate =
   (point, offersData, destinationsData) => {
-    const { type, dateFrom, dateTo, price, offers, destination } = point;
+    const { id, type, dateFrom, dateTo, price, offers, destination } = point;
 
-    const { name, description, pictures } = destination;
+    const { name = '', description = '', pictures = [] } = destination;
 
     const capitalizedType = getCapitalaizedType(type);
 
@@ -118,6 +118,9 @@ const createTemplate =
     const templateListCity = createDestinationListTemplate(destinationsData);
 
     const templateSectionDescription = createDescriptionTemplate(description, pictures);
+
+    const isNewPoint = !id;
+    const resetBtnText = isNewPoint ? 'Cancel' : 'Delete';
 
     return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -157,10 +160,11 @@ const createTemplate =
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">
+                  <button class="event__reset-btn" type="reset">${resetBtnText}</button>
+                  ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
-                  </button>
+                    </button>
+                  `}
                 </header>
                 <section class="event__details">
                   ${templateSectionOffers}
@@ -176,12 +180,13 @@ export default class FormEditEvent extends AbstractStatefulView {
   #handleFormSubmitClick = null;
   #handleBtnDeleteClick = null;
   #handleFormBtnCloseClick = null;
+  #handleFormBtnCancelClick = null;
 
   //переменные для хранения инстансов календарей
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor ({ point, offers, destinations, onFormSubmit, onPointDeleteClick, onFormBtnCloseClick }) {
+  constructor ({ point, offers, destinations, onFormSubmit, onPointDeleteClick, onFormBtnCloseClick, onPointCancelClick }) {
     super();
     this._setState(FormEditEvent.parsePointToState(point));
     this.#offers = offers;
@@ -189,6 +194,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.#handleFormSubmitClick = onFormSubmit;
     this.#handleBtnDeleteClick = onPointDeleteClick;
     this.#handleFormBtnCloseClick = onFormBtnCloseClick;
+    this.#handleFormBtnCancelClick = onPointCancelClick;
     this._restoreHandlers();
   }
 
@@ -216,9 +222,16 @@ export default class FormEditEvent extends AbstractStatefulView {
   }
 
   _restoreHandlers = () => {
+    const isNewPoint = !this._state.id;
+
+    if (isNewPoint) {
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#handleFormBtnCancelClick);
+    } else {
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#btnDeleteHandler);
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
+    }
+
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#btnDeleteHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
 

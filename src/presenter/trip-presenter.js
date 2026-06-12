@@ -9,6 +9,7 @@ import PointPresenter from './point-presenter.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import {filter} from '../utils/filter.js';
+import AddNewPointPresenter from './add-new-point-presenter.js';
 
 export default class TripPresenter {
   #headerContainer = null; // контейнер шапки
@@ -23,11 +24,12 @@ export default class TripPresenter {
   #tripInfoComponent = new TripInfoView(); // компонент информации о всем путешествии
   #filterComponent = null; // компонент фильтров
   #sortComponent = null; // компонент сортировки
-  #listEventComponent = null; // компонент самого списка без точек <ul></ul>
+  #listEventComponent = new ListTripEvents(); // компонент самого списка без точек <ul></ul>
   #listEmptyComponent = null; // компонент пустого списка
   #listPointPresenters = new Map(); // мапа - списка всех презентеров точек - нужна для навигации и внесению изменений в события отдельных точек
   #currentSortType = SortType.DAY; // объект (флаг) - текущего события (по дефолту - сортировка по Day)
   #filterType = FilterType.EVERITHING;
+  #newPointPresenter = null;
 
   constructor({
     headerContainer,
@@ -36,6 +38,7 @@ export default class TripPresenter {
     offersModel,
     destinationsModel,
     filterModel,
+    onNewPointDestroy,
   }) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
@@ -43,6 +46,14 @@ export default class TripPresenter {
     this.#offersModel = offersModel; // модель offers;
     this.#destinationsModel = destinationsModel; // модель destinations;
     this.#filtersModel = filterModel;
+
+    this.#newPointPresenter = new AddNewPointPresenter({
+      container: this.#listEventComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewPointDestroy,
+      offers: this.#offersModel.offers,
+      destinations: this.#destinationsModel.destinations,
+    });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
@@ -86,6 +97,12 @@ export default class TripPresenter {
     this.#renderBoardTrip();
   }
 
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERITHING);
+    this.#newPointPresenter.init();
+  }
+
   // метод отвечающий за отрисовку общей информации о путешествии в шапке
   #renderInfoTrip() {
     render(
@@ -111,7 +128,7 @@ export default class TripPresenter {
   }
 
   #renderListComponent() {
-    this.#listEventComponent = new ListTripEvents();
+    // this.#listEventComponent = new ListTripEvents();
     //отрисоваваю контейнер списка - <ul></ul>
     render(this.#listEventComponent, this.#listContainer);
   }
@@ -184,11 +201,12 @@ export default class TripPresenter {
   }
 
   #clearListBoard({ resetSortType = false } = {}) {
+    this.#newPointPresenter.destroy();
     this.#listPointPresenters.forEach((presenter) => presenter.destroy());
     this.#listPointPresenters.clear();
 
     remove(this.#sortComponent);
-    remove(this.#listEventComponent);
+    // remove(this.#listEventComponent);
     remove(this.#listEmptyComponent);
 
     if (resetSortType) {
@@ -221,6 +239,7 @@ export default class TripPresenter {
   // событие реагирующее на изменение состояния флага - точка / форма
   // вызывает торчащий наружу метод представления презентера точки, которые как раз проверяет флаг Mode
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#listPointPresenters.forEach((presenter) => presenter.resetView()); // смотри отвечает состояние дефолтному и если нет заменяем форму на точку
   };
 }

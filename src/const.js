@@ -11,7 +11,7 @@ const POINT__TYPE = [
 ];
 
 const FilterType = {
-  EVERITHING: 'all',
+  EVERITHING: 'everithing',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
@@ -44,4 +44,14 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType };
+const EMPTY__POINT = {
+  type: 'flight',
+  destination: {},
+  dateFrom: null,
+  dateTo: null,
+  price: 0,
+  offers: [],
+  isFavorite: false,
+};
+
+export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT };
