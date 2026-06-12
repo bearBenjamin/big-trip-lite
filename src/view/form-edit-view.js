@@ -286,14 +286,6 @@ export default class FormEditEvent extends AbstractStatefulView {
       .querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
 
-    this.element.querySelector('.event--edit')
-      .addEventListener('keydown', (evt) => {
-        // Если нажали Enter, но форма еще не заполнена до конца — блокируем клавишу
-        if (evt.key === 'Enter' && this._state.isSubmitDisabled) {
-          evt.preventDefault();
-        }
-      });
-
     //Календари пересоздаются при каждом обновлении DOM-элемента
     this.#setDatepickers();
   };
@@ -345,7 +337,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     // Обновляю минимальную дату для поля окончания события путешествия
     this.#datepickerTo.set('minDate', userDate);
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !this._state.dateTo;
+    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !this._state.dateTo || Number(this._state.price) <= 0;;
 
     // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
     this._setState({
@@ -367,7 +359,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       return;
     }
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !userDate;
+    const isFormInvalid = !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !userDate || Number(this._state.price) <= 0;;
 
     // Сохраняю изменение в стейт без перерисовки
     this._setState({
@@ -397,19 +389,14 @@ export default class FormEditEvent extends AbstractStatefulView {
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    if (!isOnlyNumbers || Number(userPrice) <= 0) {
-      evt.target.value = '';
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !this._state.dateTo;
 
-      this.updateElement({
-        price: 0,
-        isSubmitDisabled: true, // блокирую кнопку Save
-      });
-    } else {
-      this.updateElement({
-        price: Number(userPrice),
-        isSubmitDisabled: !this._state.destination || !this._state.dateFrom || !this._state.dateTo,
-      });
-    }
+    this._setState({
+      price: isOnlyNumbers ? Number(userPrice) : 0,
+      isSubmitDisabled: isFormInvalid,
+    });
+
+    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
   };
 
   #destinationChangeHandler = (evt) => {
@@ -427,7 +414,7 @@ export default class FormEditEvent extends AbstractStatefulView {
         isSubmitDisabled: true,
       });
     } else {
-      const isFormInvalid = !this._state.dateFrom || !this._state.dateTo;
+      const isFormInvalid = !this._state.dateFrom || !this._state.dateTo || Number(this._state.price) <= 0;
       this.updateElement({
         destination: currentDestination,
         isSubmitDisabled: isFormInvalid,
@@ -468,7 +455,7 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   static parsePointToState(point) {
     return { ...point,
-      isSubmitDisabled: !point.destination || !point.destination.name || !point.dateFrom || !point.dateTo,
+      isSubmitDisabled: !point.destination || !point.destination.name || !point.dateFrom || !point.dateTo || Number(point.price) <= 0,
     };
   }
 
