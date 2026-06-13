@@ -311,7 +311,8 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.#datepickerFrom = flatpickr(dateStartElement, {
       ...commonConfig,
       defaultDate: dateStartElement.value,
-      minDate: new Date(),
+      // закоментировал после просмотра открытого урока по ДЗ 7.10
+      /* minDate: new Date(), */ // теперь можно выбрать точку в прошлом - хотя, не очень логичное поведение, на мой взгляд
       onChange: this.#dateFromChangeHandler, // метод вызываемый при изменении даты начала
     });
 
@@ -337,7 +338,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     // Обновляю минимальную дату для поля окончания события путешествия
     this.#datepickerTo.set('minDate', userDate);
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !this._state.dateTo || Number(this._state.price) <= 0;;
+    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !this._state.dateTo || Number(this._state.price) <= 0;
 
     // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
     this._setState({
@@ -359,7 +360,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       return;
     }
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !userDate || Number(this._state.price) <= 0;;
+    const isFormInvalid = !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !userDate || Number(this._state.price) <= 0;
 
     // Сохраняю изменение в стейт без перерисовки
     this._setState({

@@ -10,21 +10,21 @@ const POINT__TYPE = [
   'restaurant',
 ];
 
-const FilterType = {
+const FILTER__TYPE = {
   EVERITHING: 'everithing',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
 };
 
-const MessageNoEvent = {
+const MESSAGE__NO__EVENT = {
   everithing: 'Click New Event to create your first point',
   past: 'There are no past events',
   present: 'There are no present events now',
   future: 'There are no future events now',
 };
 
-const SortType = {
+const SORT__TYPE = {
   DAY: 'day',
   TIME: 'time',
   PRICE: 'price'
@@ -54,4 +54,4 @@ const EMPTY__POINT = {
   isFavorite: false,
 };
 
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT };
+export { POINT__TYPE, FILTER__TYPE as FilterType, MESSAGE__NO__EVENT as MessageNoEvent, SORT__TYPE as SortType, UserAction, UpdateType, EMPTY__POINT };
