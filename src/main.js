@@ -32,8 +32,6 @@ const btnAddNewPointComponent = new BtnAddNewPointView({
   onClick: handleBtnAddNewPointClick,
 });
 
-render(btnAddNewPointComponent, headerContainer);
-
 // передаю в презентер путешествия - контейнер шапки, контейнер основного содержимого и данные о точках путешествия полученные из модели точек
 const tripPresenter = new TripPresenter({
   mainContainer: main,
@@ -63,4 +61,7 @@ function handleNewFormClose() {
 // вызываю метод инициации основного презентера отвечающего за создание шапки и списка с точками путешествия
 tripPresenter.init();
 filterPresenter.init();
-pointsModel.init();
+pointsModel.init()
+  .finally(() => {
+    render(btnAddNewPointComponent, headerContainer);
+  });
