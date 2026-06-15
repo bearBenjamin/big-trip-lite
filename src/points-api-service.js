@@ -5,7 +5,7 @@ const METHOD = {
   PUT: 'PUT',
 };
 
-export default class PointsApiServer {
+export default class PointsApiService extends ApiService {
   get points() {
     return this._load({
       url: 'points',
@@ -17,13 +17,11 @@ export default class PointsApiServer {
       url: `points/${point.id}`,
       method: METHOD.PUT,
       body: JSON.stringify(point),
-      headers: new Headers({'Content-Type': 'application/json'})
+      headers: new Headers({ 'Content-Type': 'application/json' }),
     });
 
     const parseResponse = await ApiService.parseResponse(response);
 
     return parseResponse;
   }
-
-
 }
