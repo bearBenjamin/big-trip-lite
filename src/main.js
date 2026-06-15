@@ -22,7 +22,7 @@ const main = document.querySelector('.page-main');
 
 // получаю данные по точкам путешествия из модели точек, передав внутрь модели данные offers и destinations из мок.данных
 const pointsModel = new PointsModel({
-  pointsApiServer: new PointsApiService(END__POINT, AUTORIZATION),
+  pointsApiService: new PointsApiService(END__POINT, AUTORIZATION),
 });
 const offersModel = new OffersModel();
 const destinationsModel = new DestinationsModel();
@@ -63,3 +63,4 @@ function handleNewFormClose() {
 // вызываю метод инициации основного презентера отвечающего за создание шапки и списка с точками путешествия
 tripPresenter.init();
 filterPresenter.init();
+pointsModel.init();

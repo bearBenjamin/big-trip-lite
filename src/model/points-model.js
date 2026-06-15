@@ -1,24 +1,37 @@
 import Observable from '../framework/observable';
-import { generatePoint } from '../mock/point';
+import { UpdateType } from '../const';
+// import { generatePoint } from '../mock/point';
 
-const POINT__COUNT = 4;
+// const POINT__COUNT = 4;
 
 export default class PointsModel extends Observable {
-  #pointsApiServer = null;
-  #points = Array.from({ length: POINT__COUNT}, generatePoint);
+  #pointsApiService = null;
+  // #points = Array.from({ length: POINT__COUNT}, generatePoint);
+  #points = [];
 
-  constructor({pointsApiServer}) {
+  constructor({pointsApiService}) {
     super();
-    this.#pointsApiServer = pointsApiServer;
+    this.#pointsApiService = pointsApiService;
 
-    this.#pointsApiServer.points.then((points) => {
-      console.log('points: ', points.map(this.#adaptToClient));
-    });
+    // this.#pointsApiService.points.then((points) => {
+    //   console.log('points: ', points.map(this.#adaptToClient));
+    // });
   }
 
   get points() {
     console.log('this.#points: ', this.#points);
     return this.#points;
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch(err) {
+      this.#points = [];
+    }
+
+    // this._notify(UpdateType.INIT);
   }
 
   updatePoint(updateType, update) {
