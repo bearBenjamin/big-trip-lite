@@ -12,11 +12,12 @@ export default class PointsModel extends Observable {
     this.#pointsApiServer = pointsApiServer;
 
     this.#pointsApiServer.points.then((points) => {
-      console.log('points: ', points);
+      console.log('points: ', points.map(this.#adaptToClient));
     });
   }
 
   get points() {
+    console.log('this.#points: ', this.#points);
     return this.#points;
   }
 
@@ -57,6 +58,23 @@ export default class PointsModel extends Observable {
     ];
 
     this._notify(updateType);
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      price: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    // Ненужные ключи мы удаляем
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 }
 
