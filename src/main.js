@@ -10,6 +10,7 @@ import BtnAddNewPointView from './view/add-point-btn-view.js';
 import { render } from './framework/render.js';
 
 import PointsApiService from './points-api-service.js';
+import DestinationsApiService from './destinations-api-service.js';
 
 const AUTORIZATION = 'Basic Hs5SfA77wcL3sa9j';
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -25,7 +26,9 @@ const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END__POINT, AUTORIZATION),
 });
 const offersModel = new OffersModel();
-const destinationsModel = new DestinationsModel();
+const destinationsModel = new DestinationsModel({
+  destinationsApiService: new DestinationsApiService(END__POINT, AUTORIZATION),
+});
 const filterModel = new FiltersModel();
 
 const btnAddNewPointComponent = new BtnAddNewPointView({
@@ -65,3 +68,4 @@ pointsModel.init()
   .finally(() => {
     render(btnAddNewPointComponent, headerContainer);
   });
+destinationsModel.init();

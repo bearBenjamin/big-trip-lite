@@ -19,7 +19,6 @@ export default class PointsModel extends Observable {
   }
 
   get points() {
-    console.log('this.#points: ', this.#points);
     return this.#points;
   }
 
