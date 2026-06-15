@@ -10,6 +10,7 @@ import { sortTime, sortPrice, sortDay } from '../utils/point.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import {filter} from '../utils/filter.js';
 import AddNewPointPresenter from './add-new-point-presenter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class TripPresenter {
   #headerContainer = null; // контейнер шапки
@@ -26,10 +27,12 @@ export default class TripPresenter {
   #sortComponent = null; // компонент сортировки
   #listEventComponent = new ListTripEvents(); // компонент самого списка без точек <ul></ul>
   #listEmptyComponent = null; // компонент пустого списка
+  #loadingComponent = new LoadingView();
   #listPointPresenters = new Map(); // мапа - списка всех презентеров точек - нужна для навигации и внесению изменений в события отдельных точек
   #currentSortType = SortType.DAY; // объект (флаг) - текущего события (по дефолту - сортировка по Day)
   #filterType = FilterType.EVERITHING;
   #newPointPresenter = null;
+  #isLoading = true;
 
   constructor({
     headerContainer,
@@ -86,9 +89,7 @@ export default class TripPresenter {
 
   init() {
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
-    this.#filterContainer = this.#headerContainer.querySelector(
-      '.trip-controls__filters',
-    ); // получаю контейнер для фильтров из контейнера шапки
+    this.#filterContainer = this.#headerContainer.querySelector('.trip-controls__filters'); // получаю контейнер для фильтров из контейнера шапки
 
     this.#listContainer = this.#mainContainer.querySelector('.trip-events'); // получаю контейнер для списка точек путешествия из контейнера main
 
@@ -113,18 +114,28 @@ export default class TripPresenter {
   }
 
   #renderBoardTrip() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.points.length === 0) {
       this.#renderNoPoint();
       return;
     }
 
     this.#renderSort();
+    remove(this.#listEmptyComponent);
     this.#renderListComponent();
 
     //отрисовываю точки списка точек путешествия
     this.points.forEach((point) => {
       this.#renderPoint(point, this.offers, this.destinations);
     });
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#listContainer);
   }
 
   #renderListComponent() {
@@ -162,14 +173,22 @@ export default class TripPresenter {
         // - обновить часть списка (например, когда поменялось описание)
         this.#listPointPresenters.get(data.id).init(data);
         break;
+
       case UpdateType.MINOR:
         // - обновить список (например, когда удалил точку)
         this.#clearListBoard();
         this.#renderBoardTrip();
         break;
+
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
         this.#clearListBoard({resetSortType: true});
+        this.#renderBoardTrip();
+        break;
+
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderBoardTrip();
         break;
     }
@@ -206,8 +225,11 @@ export default class TripPresenter {
     this.#listPointPresenters.clear();
 
     remove(this.#sortComponent);
-    // remove(this.#listEventComponent);
-    remove(this.#listEmptyComponent);
+    remove(this.#loadingComponent);
+
+    if (this.#listEmptyComponent) {
+      remove(this.#listEmptyComponent);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
