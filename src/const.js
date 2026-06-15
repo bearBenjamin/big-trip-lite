@@ -42,7 +42,7 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
-  // INIT: 'INIT',
+  INIT: 'INIT',
 };
 
 const EMPTY__POINT = {
