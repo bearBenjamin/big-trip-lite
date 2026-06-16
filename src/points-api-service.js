@@ -5,7 +5,7 @@ const METHOD = {
   PUT: 'PUT',
 };
 
-export default class PointsApiServer {
+export default class PointsApiService extends ApiService {
   get points() {
     return this._load({
       url: 'points',
@@ -13,11 +13,11 @@ export default class PointsApiServer {
   }
 
   async updatePoint(point) {
-    const response = this._load({
+    const response = await this._load({
       url: `points/${point.id}`,
       method: METHOD.PUT,
-      body: JSON.stringify(point),
-      headers: new Headers({'Content-Type': 'application/json'})
+      body: JSON.stringify(this.#adaptToServer(point)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
     });
 
     const parseResponse = await ApiService.parseResponse(response);
@@ -25,5 +25,19 @@ export default class PointsApiServer {
     return parseResponse;
   }
 
+  #adaptToServer(point) {
+    const adaptedPoint = {...point,
+      'base_price': point.price,
+      'date_from': point.dateFrom,
+      'date_to': point.dateTo,
+      'is_favorite': point.isFavorite,
+    };
 
+    delete adaptedPoint.price;
+    delete adaptedPoint.dateFrom;
+    delete adaptedPoint.dateTo;
+    delete adaptedPoint.isFavorite;
+
+    return adaptedPoint;
+  }
 }

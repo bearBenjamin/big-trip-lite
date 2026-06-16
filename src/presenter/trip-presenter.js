@@ -1,15 +1,14 @@
 import TripInfoView from '../view/trip-info-view.js';
-// import FilterView from '../view/filter-view.js';
 import ListTripEvents from '../view/list-trip-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
-// import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import {filter} from '../utils/filter.js';
 import AddNewPointPresenter from './add-new-point-presenter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class TripPresenter {
   #headerContainer = null; // контейнер шапки
@@ -26,10 +25,12 @@ export default class TripPresenter {
   #sortComponent = null; // компонент сортировки
   #listEventComponent = new ListTripEvents(); // компонент самого списка без точек <ul></ul>
   #listEmptyComponent = null; // компонент пустого списка
+  #loadingComponent = new LoadingView();
   #listPointPresenters = new Map(); // мапа - списка всех презентеров точек - нужна для навигации и внесению изменений в события отдельных точек
   #currentSortType = SortType.DAY; // объект (флаг) - текущего события (по дефолту - сортировка по Day)
   #filterType = FilterType.EVERITHING;
   #newPointPresenter = null;
+  #isLoading = true;
 
   constructor({
     headerContainer,
@@ -51,11 +52,13 @@ export default class TripPresenter {
       container: this.#listEventComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy,
-      offers: this.#offersModel.offers,
-      destinations: this.#destinationsModel.destinations,
+      getOffers: () => this.offers,
+      getDestinations: () => this.destinations,
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#offersModel.addObserver(this.#handleModelEvent);
+    this.#destinationsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
@@ -86,9 +89,7 @@ export default class TripPresenter {
 
   init() {
     this.#tripInfoContainer = this.#headerContainer.querySelector('.trip-main'); // получаю контейнер для общей информации для путешествия из контейнера шапки
-    this.#filterContainer = this.#headerContainer.querySelector(
-      '.trip-controls__filters',
-    ); // получаю контейнер для фильтров из контейнера шапки
+    this.#filterContainer = this.#headerContainer.querySelector('.trip-controls__filters'); // получаю контейнер для фильтров из контейнера шапки
 
     this.#listContainer = this.#mainContainer.querySelector('.trip-events'); // получаю контейнер для списка точек путешествия из контейнера main
 
@@ -113,18 +114,33 @@ export default class TripPresenter {
   }
 
   #renderBoardTrip() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
+    if (this.offers.length === 0 || this.destinations.length === 0) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.points.length === 0) {
       this.#renderNoPoint();
       return;
     }
 
     this.#renderSort();
+    remove(this.#listEmptyComponent);
     this.#renderListComponent();
 
     //отрисовываю точки списка точек путешествия
     this.points.forEach((point) => {
       this.#renderPoint(point, this.offers, this.destinations);
     });
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#listContainer);
   }
 
   #renderListComponent() {
@@ -152,24 +168,27 @@ export default class TripPresenter {
 
   // обработчик вызываемы при изменении модели точек - посути отвечает за перерисовку если данные в модели обновились
   #handleModelEvent = (updateType, data) => {
-    // console.log(updateType, data);
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда удалили точку)
-    // - обновить все отрисованное (например, при переключении фильтра)
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
         this.#listPointPresenters.get(data.id).init(data);
         break;
+
       case UpdateType.MINOR:
         // - обновить список (например, когда удалил точку)
         this.#clearListBoard();
         this.#renderBoardTrip();
         break;
+
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
         this.#clearListBoard({resetSortType: true});
+        this.#renderBoardTrip();
+        break;
+
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderBoardTrip();
         break;
     }
@@ -206,8 +225,11 @@ export default class TripPresenter {
     this.#listPointPresenters.clear();
 
     remove(this.#sortComponent);
-    // remove(this.#listEventComponent);
-    remove(this.#listEmptyComponent);
+    remove(this.#loadingComponent);
+
+    if (this.#listEmptyComponent) {
+      remove(this.#listEmptyComponent);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
@@ -216,11 +238,6 @@ export default class TripPresenter {
 
   // событие отвечающее за обновление данных в модели точек после действий пользователя в представлении (View) - посути следит за действиями пользователя и обновляет данные
   #handleViewAction = (actionType, updateType, update) => {
-    // console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
     switch (actionType) {
       case UserAction.UPDATE__POINT:
         this.#pointsModel.updatePoint(updateType, update);

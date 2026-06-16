@@ -78,13 +78,11 @@ const createDescriptionTemplate = (description, pictures) => {
 
   const templatePhotos = createPhotosTemplate(pictures);
 
-  const templateSectionDescription = templatePhotos
-    ? `<section class="event__section  event__section--destination">
+  const templateSectionDescription = `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     ${templateDescription}
                     ${templatePhotos}
-                  </section>`
-    : '';
+                  </section>`;
 
   return templateSectionDescription;
 };
@@ -122,7 +120,8 @@ const createDestinationListTemplate = (destinationsData) => {
 const createTemplate = (point, offersData, destinationsData) => {
   const { id, type, dateFrom, dateTo, price, offers, destination, isSubmitDisabled } = point;
 
-  const { name = '', description = '', pictures = [] } = destination || {};
+  const currentDestination = destinationsData.find((item) => item.id === destination);
+  const { name = '', description = '', pictures = [] } = currentDestination || {};
 
   const capitalizedType = getCapitalaizedType(type);
 
@@ -285,6 +284,10 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
 
     //Календари пересоздаются при каждом обновлении DOM-элемента
     this.#setDatepickers();
@@ -338,7 +341,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     // Обновляю минимальную дату для поля окончания события путешествия
     this.#datepickerTo.set('minDate', userDate);
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !this._state.dateTo || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !userDate || !this._state.dateTo || Number(this._state.price) <= 0;
 
     // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
     this._setState({
@@ -360,7 +363,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       return;
     }
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !userDate || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !this._state.dateFrom || !userDate || Number(this._state.price) <= 0;
 
     // Сохраняю изменение в стейт без перерисовки
     this._setState({
@@ -390,14 +393,14 @@ export default class FormEditEvent extends AbstractStatefulView {
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !this._state.dateTo;
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
 
     this._setState({
       price: isOnlyNumbers ? Number(userPrice) : 0,
       isSubmitDisabled: isFormInvalid,
     });
 
-    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    this.element.querySelector('.event__save-btn').disabled = isFormInvalid; // похоже это можно удалить
   };
 
   #destinationChangeHandler = (evt) => {
@@ -417,25 +420,51 @@ export default class FormEditEvent extends AbstractStatefulView {
     } else {
       const isFormInvalid = !this._state.dateFrom || !this._state.dateTo || Number(this._state.price) <= 0;
       this.updateElement({
-        destination: currentDestination,
+        destination: currentDestination.id,
         isSubmitDisabled: isFormInvalid,
       });
     }
   };
 
-  #formSubmitHandler = (evt) => {
-    evt.preventDefault();
-    // Собираю актуальный массив выбранных офферов
-    const checkedBoxes = this.element.querySelectorAll(
-      '.event__offer-checkbox:checked',
-    );
-    const selectedOffers = Array.from(checkedBoxes).map((box) =>
-      Number(box.dataset.offerId),
-    );
+  #offerChangeHandler = (evt) => {
+    if (!evt.target.classList.contains('event__offer-checkbox')) {
+      return;
+    }
 
+    evt.preventDefault();
+
+    const clickedOfferId = evt.target.dataset.offerId;
+
+    let selectedOffers = [...this._state.offers];
+
+    if (evt.target.checked) {
+      if (!selectedOffers.includes(clickedOfferId)) {
+        selectedOffers.push(clickedOfferId);
+      }
+    } else {
+      selectedOffers = selectedOffers.filter((id) => id !== clickedOfferId);
+    }
+
+    // Обновляем состояние на лету, пока пользователь кликает
     this._setState({
       offers: selectedOffers,
     });
+  };
+
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    // Собираю актуальный массив выбранных офферов
+    // const checkedBoxes = this.element.querySelectorAll(
+    //   '.event__offer-checkbox:checked',
+    // );
+    // const selectedOffers = Array.from(checkedBoxes).map((box) =>
+    //   box.dataset.offerId,
+    // );
+
+    // this._setState({
+    //   offers: selectedOffers,
+    // });
 
     if (this._state.isSubmitDisabled) {
       return;
@@ -456,7 +485,7 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   static parsePointToState(point) {
     return { ...point,
-      isSubmitDisabled: !point.destination || !point.destination.name || !point.dateFrom || !point.dateTo || Number(point.price) <= 0,
+      isSubmitDisabled: !point.destination || !point.dateFrom || !point.dateTo || Number(point.price) <= 0,
     };
   }
 
