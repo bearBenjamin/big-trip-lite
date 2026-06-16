@@ -1,10 +1,8 @@
 import TripInfoView from '../view/trip-info-view.js';
-// import FilterView from '../view/filter-view.js';
 import ListTripEvents from '../view/list-trip-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
-// import { generateFilter } from '../mock/filter.js';
 import PointPresenter from './point-presenter.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
@@ -54,8 +52,6 @@ export default class TripPresenter {
       container: this.#listEventComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy,
-      // offers: this.#offersModel.offers,
-      // destinations: this.#destinationsModel.destinations,
       getOffers: () => this.offers,
       getDestinations: () => this.destinations,
     });
@@ -172,11 +168,6 @@ export default class TripPresenter {
 
   // обработчик вызываемы при изменении модели точек - посути отвечает за перерисовку если данные в модели обновились
   #handleModelEvent = (updateType, data) => {
-    // console.log(updateType, data);
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда удалили точку)
-    // - обновить все отрисованное (например, при переключении фильтра)
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
@@ -247,11 +238,6 @@ export default class TripPresenter {
 
   // событие отвечающее за обновление данных в модели точек после действий пользователя в представлении (View) - посути следит за действиями пользователя и обновляет данные
   #handleViewAction = (actionType, updateType, update) => {
-    // console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
     switch (actionType) {
       case UserAction.UPDATE__POINT:
         this.#pointsModel.updatePoint(updateType, update);

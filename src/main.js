@@ -21,7 +21,6 @@ const filterContainer = header.querySelector('.trip-controls__filters');
 
 const main = document.querySelector('.page-main');
 
-// получаю данные по точкам путешествия из модели точек, передав внутрь модели данные offers и destinations из мок.данных
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END__POINT, AUTORIZATION),
 });
@@ -37,7 +36,6 @@ const btnAddNewPointComponent = new BtnAddNewPointView({
   onClick: handleBtnAddNewPointClick,
 });
 
-// передаю в презентер путешествия - контейнер шапки, контейнер основного содержимого и данные о точках путешествия полученные из модели точек
 const tripPresenter = new TripPresenter({
   mainContainer: main,
   headerContainer: header,
@@ -63,7 +61,6 @@ function handleNewFormClose() {
   btnAddNewPointComponent.element.disabled = false;
 }
 
-// вызываю метод инициации основного презентера отвечающего за создание шапки и списка с точками путешествия
 tripPresenter.init();
 filterPresenter.init();
 destinationsModel.init();

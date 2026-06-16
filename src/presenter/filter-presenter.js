@@ -24,7 +24,6 @@ export default class FilterPresenter {
 
     return Object.values(FilterType).map((type) => ({
       type,
-      /* data: filter[type](points), */
       count: filter[type](points).length
     }));
   }

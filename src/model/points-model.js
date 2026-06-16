@@ -1,21 +1,13 @@
 import Observable from '../framework/observable';
 import { UpdateType } from '../const';
-// import { generatePoint } from '../mock/point';
-
-// const POINT__COUNT = 4;
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
-  // #points = Array.from({ length: POINT__COUNT}, generatePoint);
   #points = [];
 
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-
-    // this.#pointsApiService.points.then((points) => {
-    //   console.log('points: ', points.map(this.#adaptToClient));
-    // });
   }
 
   get points() {
@@ -51,7 +43,6 @@ export default class PointsModel extends Observable {
 
       this._notify(updateType, updatedPoints);
     } catch(err) {
-      // console.error('Настоящая причина падения запроса:', err);
       throw new Error('Can\'t update task');
     }
   }
@@ -89,7 +80,6 @@ export default class PointsModel extends Observable {
       isFavorite: point['is_favorite'],
     };
 
-    // Ненужные ключи мы удаляем
     delete adaptedPoint['base_price'];
     delete adaptedPoint['date_from'];
     delete adaptedPoint['date_to'];

@@ -7,8 +7,6 @@ export default class AddNewPointPresenter {
   #container = null;
   #handleDataChange = null;
   #handleDestroy = null;
-  // #offers = null;
-  // #destinations = null;
   #getOffers = null;
   #getDestinations = null;
 
@@ -18,8 +16,6 @@ export default class AddNewPointPresenter {
     this.#container = container;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
-    // this.#offers = offers;
-    // this.#destinations = destinations;
     this.#getOffers = getOffers;
     this.#getDestinations = getDestinations;
   }
