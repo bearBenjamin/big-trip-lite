@@ -13,7 +13,7 @@ export default class PointsApiService extends ApiService {
   }
 
   async updatePoint(point) {
-    const response = this._load({
+    const response = await this._load({
       url: `points/${point.id}`,
       method: METHOD.PUT,
       body: JSON.stringify(this.#adaptToServer(point)),
