@@ -54,11 +54,15 @@ export default class TripPresenter {
       container: this.#listEventComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy,
-      offers: this.#offersModel.offers,
-      destinations: this.#destinationsModel.destinations,
+      // offers: this.#offersModel.offers,
+      // destinations: this.#destinationsModel.destinations,
+      getOffers: () => this.offers,
+      getDestinations: () => this.destinations,
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#offersModel.addObserver(this.#handleModelEvent);
+    this.#destinationsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
@@ -115,6 +119,11 @@ export default class TripPresenter {
 
   #renderBoardTrip() {
     if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
+    if (this.offers.length === 0 || this.destinations.length === 0) {
       this.#renderLoading();
       return;
     }

@@ -1,4 +1,5 @@
 import Observable from '../framework/observable';
+import { UpdateType } from '../const';
 // import { destinationsData } from '../mock/point';
 
 export default class DestinationsModel extends Observable {
@@ -21,9 +22,11 @@ export default class DestinationsModel extends Observable {
 
   async init() {
     try {
-      this.#destinations = await this.destinationsApiService.destinations;
+      this.#destinations = await this.#destinationsApiService.destinations;
     } catch(err) {
       this.#destinations = [];
     }
+
+    this._notify(UpdateType.INIT);
   }
 }

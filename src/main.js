@@ -1,5 +1,4 @@
 import TripPresenter from './presenter/trip-presenter.js';
-// import { offersData, destinationsData } from './mock/point.js';
 import PointsModel from './model/points-model.js';
 import OffersModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
@@ -11,6 +10,7 @@ import { render } from './framework/render.js';
 
 import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
+import OffersApiService from './offers-api-service.js';
 
 const AUTORIZATION = 'Basic Hs5SfA77wcL3sa9j';
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -25,7 +25,9 @@ const main = document.querySelector('.page-main');
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END__POINT, AUTORIZATION),
 });
-const offersModel = new OffersModel();
+const offersModel = new OffersModel({
+  offersApiService: new OffersApiService(END__POINT, AUTORIZATION)
+});
 const destinationsModel = new DestinationsModel({
   destinationsApiService: new DestinationsApiService(END__POINT, AUTORIZATION),
 });
@@ -64,8 +66,9 @@ function handleNewFormClose() {
 // вызываю метод инициации основного презентера отвечающего за создание шапки и списка с точками путешествия
 tripPresenter.init();
 filterPresenter.init();
+destinationsModel.init();
+offersModel.init();
 pointsModel.init()
   .finally(() => {
     render(btnAddNewPointComponent, headerContainer);
   });
-destinationsModel.init();

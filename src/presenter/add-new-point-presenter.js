@@ -7,17 +7,21 @@ export default class AddNewPointPresenter {
   #container = null;
   #handleDataChange = null;
   #handleDestroy = null;
-  #offers = null;
-  #destinations = null;
+  // #offers = null;
+  // #destinations = null;
+  #getOffers = null;
+  #getDestinations = null;
 
   #pointEditComponent = null;
 
-  constructor({container, onDataChange, onDestroy, offers, destinations}) {
+  constructor({container, onDataChange, onDestroy, getOffers, getDestinations}) {
     this.#container = container;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
-    this.#offers = offers;
-    this.#destinations = destinations;
+    // this.#offers = offers;
+    // this.#destinations = destinations;
+    this.#getOffers = getOffers;
+    this.#getDestinations = getDestinations;
   }
 
   init() {
@@ -27,8 +31,8 @@ export default class AddNewPointPresenter {
 
     this.#pointEditComponent = new FormEditEvent({
       point: EMPTY__POINT,
-      offers: this.#offers,
-      destinations: this.#destinations,
+      offers: this.#getOffers(),
+      destinations: this.#getDestinations(),
 
       onFormSubmit: this.#handleFormSubmit,
       onPointDeleteClick: null,
