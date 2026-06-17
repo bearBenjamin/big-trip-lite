@@ -1,7 +1,6 @@
 import { render, remove, RenderPosition } from '../framework/render';
 import { UpdateType, UserAction, EMPTY__POINT } from '../const';
 import FormEditEvent from '../view/form-edit-view';
-import {nanoid} from 'nanoid';
 
 export default class AddNewPointPresenter {
   #container = null;
@@ -33,7 +32,7 @@ export default class AddNewPointPresenter {
       onFormSubmit: this.#handleFormSubmit,
       onPointDeleteClick: null,
       onFormBtnCloseClick: null,
-      onPointCancelClick: this.#handleDeliteClick,
+      onPointCancelClick: this.#handleCancelClick,
     });
 
     render(this.#pointEditComponent, this.#container, RenderPosition.AFTERBEGIN);
@@ -58,12 +57,12 @@ export default class AddNewPointPresenter {
     this.#handleDataChange(
       UserAction.ADD__POINT,
       UpdateType.MINOR,
-      {id: nanoid(), ...point},
+      point,
     );
     this.destroy();
   };
 
-  #handleDeliteClick = () => {
+  #handleCancelClick = () => {
     this.destroy();
   };
 
