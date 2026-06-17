@@ -27,6 +27,42 @@ export default class PointPresenter {
     this.#handleModeChange = onModeChange;
   }
 
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#formEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#formEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake(); // Потрясти статичную точку, если не сработал лайк
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#formEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    // Трясем форму редактирования и после окончания анимации возвращаем инпуты в рабочий режим
+    this.#formEditComponent.shake(resetFormState);
+  }
+
   init(point) {
     this.#point = point;
 
@@ -112,10 +148,10 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (point) => {
-    this.#replaceFormToPoint();
+    // this.#replaceFormToPoint();
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       point,
     );
   };

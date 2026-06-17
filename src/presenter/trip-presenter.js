@@ -237,18 +237,35 @@ export default class TripPresenter {
   }
 
   // событие отвечающее за обновление данных в модели точек после действий пользователя в представлении (View) - посути следит за действиями пользователя и обновляет данные
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    const currentPresenter = this.#listPointPresenters.get(update.id);
+
     switch (actionType) {
       case UserAction.UPDATE__POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        currentPresenter.setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch (err) {
+          currentPresenter.setAborting();
+        }
         break;
 
       case UserAction.ADD__POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (err) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
 
       case UserAction.DELETE__POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        currentPresenter.setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (err) {
+          currentPresenter.setAborting();
+        }
         break;
     }
   };

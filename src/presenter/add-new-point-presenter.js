@@ -19,6 +19,30 @@ export default class AddNewPointPresenter {
     this.#getDestinations = getDestinations;
   }
 
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    if (this.#pointEditComponent === null) {
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    // Трясем форму создания новой точки и разблокируем её обратно
+    this.#pointEditComponent.shake(resetFormState);
+  }
+
   init() {
     if (this.#pointEditComponent !== null) {
       return;
@@ -59,7 +83,7 @@ export default class AddNewPointPresenter {
       UpdateType.MINOR,
       point,
     );
-    this.destroy();
+    // this.destroy();
   };
 
   #handleCancelClick = () => {
