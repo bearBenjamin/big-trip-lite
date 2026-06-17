@@ -1,6 +1,6 @@
-import TripInfoView from '../view/trip-info-view.js';
+// import TripInfoView from '../view/trip-info-view.js';
 import ListTripEvents from '../view/list-trip-view.js';
-import { render, remove, RenderPosition } from '../framework/render.js';
+import { render, remove, /* RenderPosition */ } from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
@@ -20,7 +20,7 @@ export default class TripPresenter {
   #offersModel = []; // данные обо всех offers из модели offers
   #destinationsModel = []; // данные обо всех destinations из модели destinations;
   #filtersModel = [];
-  #tripInfoComponent = new TripInfoView(); // компонент информации о всем путешествии
+  // #tripInfoComponent = new TripInfoView(); // компонент информации о всем путешествии
   #filterComponent = null; // компонент фильтров
   #sortComponent = null; // компонент сортировки
   #listEventComponent = new ListTripEvents(); // компонент самого списка без точек <ul></ul>
@@ -93,8 +93,6 @@ export default class TripPresenter {
 
     this.#listContainer = this.#mainContainer.querySelector('.trip-events'); // получаю контейнер для списка точек путешествия из контейнера main
 
-    this.#renderInfoTrip(); // метод отвечающий за отрисовку общей информации о путешествии в шапке
-
     this.#renderBoardTrip();
   }
 
@@ -102,15 +100,6 @@ export default class TripPresenter {
     this.#currentSortType = SortType.DAY;
     this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERITHING);
     this.#newPointPresenter.init();
-  }
-
-  // метод отвечающий за отрисовку общей информации о путешествии в шапке
-  #renderInfoTrip() {
-    render(
-      this.#tripInfoComponent,
-      this.#tripInfoContainer,
-      RenderPosition.AFTERBEGIN,
-    );
   }
 
   #renderBoardTrip() {

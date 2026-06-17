@@ -12,6 +12,8 @@ import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
 import OffersApiService from './offers-api-service.js';
 
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
+
 const AUTORIZATION = 'Basic Hs5SfA77wcL3sa9j';
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
@@ -31,6 +33,8 @@ const destinationsModel = new DestinationsModel({
   destinationsApiService: new DestinationsApiService(END__POINT, AUTORIZATION),
 });
 const filterModel = new FiltersModel();
+
+const tripInfoPresenter = new TripInfoPresenter({container: headerContainer, pointsModel, offersModel, destinationsModel});
 
 const btnAddNewPointComponent = new BtnAddNewPointView({
   onClick: handleBtnAddNewPointClick,
@@ -69,3 +73,4 @@ pointsModel.init()
   .finally(() => {
     render(btnAddNewPointComponent, headerContainer);
   });
+tripInfoPresenter.init();
